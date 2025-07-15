@@ -1,91 +1,63 @@
-
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { Usuario } from '@/types';
 
 interface AuthContextType {
   usuario: Usuario | null;
-  iniciarSesion: (email: string, password: string) => Promise<boolean>;
-  cerrarSesion: () => void;
-  isLoading: boolean;
+  token: string | null;
+  isAuthenticated: boolean;
+  login: (token: string, usuario: Usuario) => void;
+  logout: () => void;
+  hasRole: (rol: string) => boolean;
+  isLoadingAuth: boolean;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
-// Mock users for development
-const mockUsers: Usuario[] = [
-  {
-    id: '1',
-    nombre: 'Administrador Sistema',
-    email: 'admin@jardineria.com',
-    rol: 'administrador',
-    activo: true,
-    fechaRegistro: '2024-01-01'
-  },
-  {
-    id: '2',
-    nombre: 'María López',
-    email: 'maria@jardineria.com',
-    rol: 'operador_logistico',
-    activo: true,
-    fechaRegistro: '2024-01-15'
-  },
-  {
-    id: '3',
-    nombre: 'Carlos Hernández',
-    email: 'carlos@jardineria.com',
-    rol: 'encargado',
-    equipoId: '1',
-    activo: true,
-    fechaRegistro: '2024-02-01'
-  }
-];
-
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [usuario, setUsuario] = useState<Usuario | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [token, setToken] = useState<string | null>(null);
+  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
 
   useEffect(() => {
-    // Check for stored session
+    const storedToken = localStorage.getItem('token');
     const storedUser = localStorage.getItem('usuario');
-    if (storedUser) {
+
+    if (storedToken && storedUser) {
+      setToken(storedToken);
       setUsuario(JSON.parse(storedUser));
     }
-    setIsLoading(false);
+    setIsLoadingAuth(false);
   }, []);
 
-  const iniciarSesion = async (email: string, password: string): Promise<boolean> => {
-    setIsLoading(true);
-    
-    // Mock authentication
-    const user = mockUsers.find(u => u.email === email && u.activo);
-    
-    if (user) {
-      setUsuario(user);
-      localStorage.setItem('usuario', JSON.stringify(user));
-      setIsLoading(false);
-      return true;
-    }
-    
-    setIsLoading(false);
-    return false;
+  const login = (token: string, usuario: Usuario) => {
+    localStorage.setItem('token', token);
+    localStorage.setItem('usuario', JSON.stringify(usuario));
+    setToken(token);
+    setUsuario(usuario);
   };
 
-  const cerrarSesion = () => {
-    setUsuario(null);
+  const logout = () => {
+    localStorage.removeItem('token');
     localStorage.removeItem('usuario');
+    setToken(null);
+    setUsuario(null);
   };
+
+  const hasRole = (rol: string): boolean => usuario?.rol === rol;
 
   return (
-    <AuthContext.Provider value={{ usuario, iniciarSesion, cerrarSesion, isLoading }}>
+    <AuthContext.Provider value={{
+      usuario,
+      token,
+      isAuthenticated: !!token,
+      login,
+      logout,
+      hasRole,
+      isLoadingAuth,
+    }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+export const useAuth = () => useContext(AuthContext);

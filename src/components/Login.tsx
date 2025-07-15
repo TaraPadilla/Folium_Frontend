@@ -1,38 +1,48 @@
-
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { AuthService } from '@/services/api/AuthService';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
 
-const Login = () => {
+const authService = new AuthService();
+
+const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { iniciarSesion } = useAuth();
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
     try {
-      const success = await iniciarSesion(email, password);
-      if (!success) {
+      console.log(email, password);
+      const response = await authService.login(email, password);
+      console.log(response);
+      if (response?.token && response?.usuario) {
+        login(response.token, response.usuario);
         toast({
-          title: "Error de autenticación",
-          description: "Credenciales incorrectas o usuario inactivo",
-          variant: "destructive",
+          title: "Bienvenido",
+          description: `Has iniciado sesión correctamente`,
         });
+        navigate('/');
+      } else {
+        throw new Error('Credenciales inválidas');
       }
-    } catch (error) {
+    } catch (error: any) {
+      const msg = error?.response?.data?.mensaje || "Ocurrió un error al intentar iniciar sesión";
       toast({
         title: "Error",
-        description: "Ocurrió un error al iniciar sesión",
+        description: msg,
         variant: "destructive",
       });
-    } finally {
+    }
+    finally {
       setIsLoading(false);
     }
   };
@@ -97,4 +107,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default LoginForm;
