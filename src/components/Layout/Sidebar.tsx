@@ -20,6 +20,7 @@ import {
   Menu,
   X
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface SidebarProps {
   activeTab: string;
@@ -28,10 +29,11 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
   const { usuario } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(() => window.innerWidth >= 768);
 
   const getMenuItems = () => {
-    if (usuario?.rol === 'administrador') {
+    if (usuario?.rol === 'admin') {
       return [
         { 
           id: 'gestion', 
@@ -41,6 +43,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
             { id: 'dashboard', label: 'Dashboard', icon: Settings },
             { id: 'clientes', label: 'Clientes', icon: Users },
             { id: 'prospectos', label: 'Prospectos', icon: UserPlus },
+            { id: 'catalogos', label: 'Catálogos', icon: Settings },
             { id: 'usuarios', label: 'Usuarios', icon: Settings },
           ]
         },
@@ -89,6 +92,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
   const handleMenuItemClick = (itemId: string) => {
     setActiveTab(itemId);
     setIsOpen(false); // Cerrar sidebar en móvil después de seleccionar
+    navigate(`/${itemId}`);
   };
 
   return (

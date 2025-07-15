@@ -1,3 +1,4 @@
+export const roles = ['ADMIN', 'ASISTENTE', 'TECNICO'];
 
 export interface Cliente {
   id: string;
@@ -90,7 +91,7 @@ export interface Usuario {
   id: string;
   nombre: string;
   email: string;
-  rol: 'administrador' | 'operador_logistico' | 'encargado';
+  rol: 'admin' | 'operador_logistico' | 'encargado';
   equipoId?: string;
   activo: boolean;
   fechaRegistro: string;

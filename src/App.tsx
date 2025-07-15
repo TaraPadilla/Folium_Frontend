@@ -5,37 +5,60 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
-import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import LoginForm from "./components/Login";
+import AdminPanel from "./components/admin/AdminPanel";
+import { Navigate, Outlet } from "react-router-dom";
+import AppLayout from "./components/Layout/AppLayout";
+import Dashboard from "./components/Dashboard/Dashboard";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Create QueryClient outside of component to avoid recreating on every render
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      gcTime: 1000 * 60 * 10, // 10 minutes
-    },
-  },
-});
+  const queryClient = new QueryClient();
+  const RequireAuth = () => {
+    const { token, isLoadingAuth } = useAuth();
+    console.log('RequireAuth | token:', token, '| isLoadingAuth:', isLoadingAuth);
+    if (isLoadingAuth) {
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+          <span style={{ fontSize: 20, marginBottom: 8 }}>Cargando autenticación...</span>
+          {/* Aquí puedes reemplazar por un spinner visual si tienes uno */}
+        </div>
+      );
+    }
 
-const App = () => {
+    if (!token) {
+      console.log('RequireAuth | No token, redirigiendo a /login');
+      return <Navigate to="/login" replace />;
+    }
+
+    return <Outlet />;
+  };
+
+  const App = () => {
+    // Protección simple: reemplazar por contexto de autenticación en el futuro
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <AuthProvider>
-          <BrowserRouter>
-            <div className="min-h-screen">
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </div>
-          </BrowserRouter>
-          <Toaster />
-          <Sonner />
-        </AuthProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+            <BrowserRouter>
+            <Routes>
+              <Route path="/login" element={<LoginForm />} />
+              {/* Rutas protegidas */}
+              <Route element={<RequireAuth />}>
+                  <Route path="/" element={<AppLayout />}>
+                    <Route index element={<Dashboard />} />
+                    <Route path="admin" element={<AdminPanel />} />
+                    <Route path="dashboard" element={<Dashboard />} />
+                    <Route path="catalogos" element={<AdminPanel />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Route>
+              </Route>
+            </Routes>
+            </BrowserRouter>
+            <Toaster />
+            <Sonner />
+        </TooltipProvider>
+      </QueryClientProvider>
   );
 };
 

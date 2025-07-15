@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -12,8 +11,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { User, LogOut, Bell } from 'lucide-react';
 
-const Navbar = () => {
-  const { usuario, cerrarSesion } = useAuth();
+const AppHeader = () => {
+  const { usuario, logout } = useAuth();
 
   return (
     <nav className="bg-white shadow-sm border-b border-green-100">
@@ -52,7 +51,7 @@ const Navbar = () => {
                   <span>Perfil</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={cerrarSesion} className="text-red-600">
+                <DropdownMenuItem onClick={logout} className="text-red-600">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Cerrar Sesión</span>
                 </DropdownMenuItem>
@@ -65,4 +64,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default AppHeader;
