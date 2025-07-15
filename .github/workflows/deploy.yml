@@ -12,3 +12,17 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/Frontend
+            git pull origin master
+            export PATH=$HOME/node-v18.20.2-linux-x64/bin:$PATH
+            npm install
+            npm run build
+            cp -R dist/* ~/public_html/
