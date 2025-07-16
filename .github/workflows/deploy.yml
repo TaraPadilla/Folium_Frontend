@@ -25,4 +25,7 @@ jobs:
             export PATH=$HOME/node-v18.20.2-linux-x64/bin:$PATH
             npm install
             npm run build
-            cp -R dist/* ~/public_html/
+          
+            # Copiar solo lo esencial del build sin tocar index.php
+            cp -R dist/assets ~/public_html/assets
+            cp dist/index.html ~/public_html/index.html
