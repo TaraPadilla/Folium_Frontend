@@ -1,5 +1,60 @@
 import React, { useEffect, useState } from 'react';
 import { Cotizacion, CotizacionService } from '@/services/api/CotizacionService';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import CotizacionPdf from '../Pdf/CotizacionPdf';
+
+interface CotizacionRowProps {
+  cotizacion: Cotizacion;
+}
+
+const CotizacionRow: React.FC<CotizacionRowProps> = ({ cotizacion }) => {
+  const [pdfData, setPdfData] = React.useState<any | null>(null);
+  const [loadingPdf, setLoadingPdf] = React.useState(false);
+  const [showLink, setShowLink] = React.useState(false);
+
+  const handlePdfClick = async () => {
+    setLoadingPdf(true);
+    setShowLink(false);
+    try {
+      // Llama al servicio de cotizaciones para obtener la cotización completa getById
+      const cotizacionCompleta = await cotizacionService.getById(cotizacion.id);
+      setPdfData(cotizacionCompleta);
+      setShowLink(true);
+    } catch (e) {
+      alert('No se pudo obtener la cotización completa');
+    } finally {
+      setLoadingPdf(false);
+    }
+  };
+
+  return (
+    <tr className="hover:bg-green-50">
+      <td className="px-4 py-2 border">{cotizacion.id}</td>
+      <td className="px-4 py-2 border">{cotizacion.cliente_id}</td>
+      <td className="px-4 py-2 border">{cotizacion.fecha_creacion}</td>
+      <td className="px-4 py-2 border">{cotizacion.estado}</td>
+      <td className="px-4 py-2 border">{cotizacion.fecha_envio}</td>
+      <td className="px-4 py-2 border">{cotizacion.fecha_aceptacion}</td>
+      <td className="px-4 py-2 border">
+        <button
+          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-3 rounded"
+          onClick={handlePdfClick}
+          disabled={loadingPdf}
+        >
+          {loadingPdf ? 'Generando...' : 'PDF'}
+        </button>
+        {showLink && pdfData && (
+          <PDFDownloadLink
+            document={<CotizacionPdf cliente={pdfData.cliente} planes_seleccionados={pdfData.planes_seleccionados} />}
+            fileName={`cotizacion_${cotizacion.id}.pdf`}
+          >
+            {({ loading }) => loading ? 'Preparando...' : 'Descargar PDF'}
+          </PDFDownloadLink>
+        )}
+      </td>
+    </tr>
+  );
+};
 
 const cotizacionService = new CotizacionService();
 
@@ -37,14 +92,7 @@ const CotizacionesList: React.FC = () => {
         </thead>
         <tbody>
           {cotizaciones.map(c => (
-            <tr key={c.id} className="hover:bg-green-50">
-              <td className="px-4 py-2 border">{c.id}</td>
-              <td className="px-4 py-2 border">{c.cliente_id}</td>
-              <td className="px-4 py-2 border">{c.fecha_creacion}</td>
-              <td className="px-4 py-2 border">{c.estado}</td>
-              <td className="px-4 py-2 border">{c.fecha_envio}</td>
-              <td className="px-4 py-2 border">{c.fecha_aceptacion}</td>
-            </tr>
+            <CotizacionRow key={c.id} cotizacion={c} />
           ))}
         </tbody>
       </table>
