@@ -45,51 +45,80 @@ const styles = StyleSheet.create({
   tareaNoIncluida: { color: '#b91c1c', fontWeight: 'bold' },
 });
 
-export const CotizacionPdf: React.FC<CotizacionPdfProps> = ({ cliente, planes_seleccionados }) => (
-  <Document>
-    <Page size="A4" style={styles.page}>
-      {/* Encabezado */}
-      <View style={styles.seccion}>
-        <Text style={styles.titulo}>COTIZACIÓN DE SERVICIOS</Text>
-        <Text>Fecha: {new Date().toLocaleDateString()}</Text>
-      </View>
-      {/* Datos del cliente */}
-      <View style={styles.seccion}>
-        <Text style={styles.subtitulo}>Datos del Cliente</Text>
-        <Text>Nombre: {cliente.nombre}</Text>
-        <Text>Dirección: {cliente.direccion}</Text>
-        <Text>Contacto: {cliente.nombre_contacto} - {cliente.celular_contacto}</Text>
-        <Text>Correo: {cliente.correo_contacto}</Text>
-      </View>
-      {/* Planes y tareas */}
-      {planes_seleccionados.map((plan) => (
-        <View key={plan.id} style={styles.seccion}>
-          <Text style={styles.subtitulo}>{plan.nombre_personalizado || plan.plan.nombre}</Text>
-          {plan.plan.descripcion && <Text>{plan.plan.descripcion}</Text>}
-          <View style={styles.tabla}>
-            <View style={[styles.fila, styles.celdaHeader]}>
-              <Text style={styles.celda}>#</Text>
-              <Text style={styles.celda}>Incluida</Text>
-              <Text style={styles.celda}>Visible encargado</Text>
-            </View>
-            {plan.tareas_seleccionadas.map((tarea, idx) => (
-              <View style={styles.fila} key={tarea.id}>
-                <Text style={styles.celda}>{tarea.tarea_id}</Text>
-                <Text style={[styles.celda, tarea.incluida ? styles.tareaIncluida : styles.tareaNoIncluida]}>
-                  {tarea.incluida ? 'Sí' : 'No'}
-                </Text>
-                <Text style={styles.celda}>{tarea.visible_para_encargado ? 'Sí' : 'No'}</Text>
-              </View>
+export const CotizacionPdf: React.FC<CotizacionPdfProps & { id?: number; fecha_creacion?: string }> = ({ cliente, planes_seleccionados, id, fecha_creacion }) => {
+  // Reunir todas las tareas incluidas y no incluidas (sin repetir)
+  const tareasIncluidas: { id: number; nombre: string }[] = [];
+  const tareasNoIncluidas: { id: number; nombre: string }[] = [];
+  // Para evitar duplicados
+  const idsIncluidas = new Set<number>();
+  const idsNoIncluidas = new Set<number>();
+
+  planes_seleccionados.forEach(plan => {
+    if (Array.isArray(plan.tareas_seleccionadas)) {
+      plan.tareas_seleccionadas.forEach(tarea => {
+        // Simulamos que el nombre de la tarea viene en tarea.nombre o tarea.tarea_nombre
+        const nombre = (tarea as any).tarea?.nombre || (tarea as any).nombre || (tarea as any).tarea_nombre || `Tarea #${tarea.tarea_id}`;
+        if (tarea.incluida) {
+          if (!idsIncluidas.has(tarea.tarea_id)) {
+            tareasIncluidas.push({ id: tarea.tarea_id, nombre });
+            idsIncluidas.add(tarea.tarea_id);
+          }
+        } else {
+          if (!idsNoIncluidas.has(tarea.tarea_id)) {
+            tareasNoIncluidas.push({ id: tarea.tarea_id, nombre });
+            idsNoIncluidas.add(tarea.tarea_id);
+          }
+        }
+      });
+    }
+  });
+
+  // Quitar duplicados entre incluidas y no incluidas
+  const tareasNoIncluidasFiltradas = tareasNoIncluidas.filter(t => !idsIncluidas.has(t.id));
+
+  return (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        {/* Encabezado */}
+        <View style={styles.seccion}>
+          <Text style={styles.titulo}>COTIZACIÓN DE SERVICIOS #{id ?? ''}</Text>
+          <Text>Fecha: {fecha_creacion ? new Date(fecha_creacion).toLocaleDateString() : new Date().toLocaleDateString()}</Text>
+        </View>
+        {/* Datos del cliente */}
+        <View style={styles.seccion}>
+          <Text>Cliente: {cliente.nombre}</Text>
+          <Text>Dirección: {cliente.direccion}</Text>
+        </View>
+        {/* Texto de introducción */}
+        <View style={styles.seccion}>
+          <Text>Tenemos el agrado de presentar la siguiente cotización, la cual incluye los puntos que se detallan a continuación:</Text>
+        </View>
+        {/* Lista de tareas incluidas */}
+        {tareasIncluidas.length > 0 && (
+          <View style={styles.seccion}>
+            {tareasIncluidas.map((t) => (
+              <Text key={t.id}>{t.nombre}</Text>
             ))}
           </View>
+        )}
+        {/* Texto de exclusiones */}
+        {tareasNoIncluidasFiltradas.length > 0 && (
+          <View style={styles.seccion}>
+            <Text>Los siguientes puntos no están incluidos en la presente cotización y, en caso de requerirse, deberán ser coordinados y presupuestados por separado:</Text>
+            {tareasNoIncluidasFiltradas.map((t) => (
+              <Text key={t.id}>{t.nombre}</Text>
+            ))}
+          </View>
+        )}
+        {/* Texto final */}
+        <View style={styles.seccion}>
+          <Text>
+            Todo el personal asignado pertenece a nuestra empresa, se encuentra debidamente uniformado, con aportes al día y equipado con los elementos de protección personal (EPP) correspondientes, según las normativas vigentes.
+          </Text>
         </View>
-      ))}
-      {/* Pie de página */}
-      <View style={styles.seccion}>
-        <Text>Gracias por su interés. Esta cotización es válida por 30 días.</Text>
-      </View>
-    </Page>
-  </Document>
-);
+      </Page>
+    </Document>
+  );
+};
 
 export default CotizacionPdf;

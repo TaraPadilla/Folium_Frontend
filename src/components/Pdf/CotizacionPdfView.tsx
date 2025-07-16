@@ -38,7 +38,7 @@ const CotizacionPdfView: React.FC = () => {
         {error && <div className="text-red-600">{error}</div>}
         {data && (
           <PDFViewer width="90%" height="90%">
-            <CotizacionPdf {...data} />
+            <CotizacionPdf {...data} fecha_creacion={data.created_at} />
           </PDFViewer>
         )}
       </div>
