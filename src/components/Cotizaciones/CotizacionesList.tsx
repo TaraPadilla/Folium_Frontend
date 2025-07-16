@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Cotizacion, CotizacionService } from '@/services/api/CotizacionService';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import CotizacionPdf from '../Pdf/CotizacionPdf';
+import { useNavigate } from 'react-router-dom';
 
 interface CotizacionRowProps {
   cotizacion: Cotizacion;
@@ -11,6 +12,7 @@ const CotizacionRow: React.FC<CotizacionRowProps> = ({ cotizacion }) => {
   const [pdfData, setPdfData] = React.useState<any | null>(null);
   const [loadingPdf, setLoadingPdf] = React.useState(false);
   const [showLink, setShowLink] = React.useState(false);
+  const navigate = useNavigate();
 
   const handlePdfClick = async () => {
     setLoadingPdf(true);
@@ -38,19 +40,10 @@ const CotizacionRow: React.FC<CotizacionRowProps> = ({ cotizacion }) => {
       <td className="px-4 py-2 border">
         <button
           className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-3 rounded"
-          onClick={handlePdfClick}
-          disabled={loadingPdf}
+          onClick={() => navigate(`/cotizaciones/${cotizacion.id}/pdf`)}
         >
-          {loadingPdf ? 'Generando...' : 'PDF'}
+          PDF
         </button>
-        {showLink && pdfData && (
-          <PDFDownloadLink
-            document={<CotizacionPdf cliente={pdfData.cliente} planes_seleccionados={pdfData.planes_seleccionados} />}
-            fileName={`cotizacion_${cotizacion.id}.pdf`}
-          >
-            {({ loading }) => loading ? 'Preparando...' : 'Descargar PDF'}
-          </PDFDownloadLink>
-        )}
       </td>
     </tr>
   );
@@ -99,8 +92,6 @@ const CotizacionesList: React.FC = () => {
     </div>
   );
 };
-
-import { useNavigate } from 'react-router-dom';
 
 const NuevaCotizacionButton: React.FC = () => {
   const navigate = useNavigate();

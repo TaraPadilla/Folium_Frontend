@@ -3,6 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import NotFound from "./pages/NotFound";
@@ -38,6 +39,8 @@ import { useAuth } from "@/contexts/AuthContext";
     return <Outlet />;
   };
 
+const LazyCotizacionPdfView = React.lazy(() => import('./components/Pdf/CotizacionPdfView'));
+
   const App = () => {
     // Protección simple: reemplazar por contexto de autenticación en el futuro
   return (
@@ -54,8 +57,9 @@ import { useAuth } from "@/contexts/AuthContext";
                     <Route path="dashboard" element={<Dashboard />} />
                     <Route path="catalogos" element={<AdminPanel />} />
                     <Route path="clientes" element={<GestionClientes />} />
-<Route path="cotizaciones" element={<CotizacionesList />} />
-<Route path="cotizaciones/nueva" element={<CrearCotizacion />} />
+                    <Route path="cotizaciones" element={<CotizacionesList />} />
+                    <Route path="cotizaciones/nueva" element={<CrearCotizacion />} />
+                    <Route path="cotizaciones/:id/pdf" element={<React.Suspense fallback={<div>Cargando PDF...</div>}><LazyCotizacionPdfView /></React.Suspense>} />
                     <Route path="*" element={<NotFound />} />
                   </Route>
               </Route>
