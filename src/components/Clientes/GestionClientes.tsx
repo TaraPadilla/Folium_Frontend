@@ -9,134 +9,130 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Plus, Edit, Search, Users } from 'lucide-react';
-import { Cliente } from '@/types';
 import { toast } from '@/hooks/use-toast';
+import { ClientService, Client } from '@/services/api/ClientService';
+import { CityService, City } from '@/services/api/CityService';
 
 const GestionClientes = () => {
-  const [clientes, setClientes] = useState<Cliente[]>([
-    {
-      id: '1',
-      nombre: 'Jardines del Norte S.A.',
-      direccion: 'Av. Principal 123, Zona Norte',
-      telefono: '+502 2234-5678',
-      email: 'contacto@jardinesnorte.com',
-      grupo: 'A',
-      plan: 'semanal',
-      diaAsignado: 'lunes',
-      fechaRegistro: '2024-01-15',
-      activo: true,
-      observaciones: 'Cliente VIP, requiere atención especial en temporada de lluvia',
-      historial: []
-    },
-    {
-      id: '2',
-      nombre: 'Villa Hermosa',
-      direccion: 'Calle Las Flores 456, Villa Hermosa',
-      telefono: '+502 2345-6789',
-      email: 'info@villahermosa.com',
-      grupo: 'B',
-      plan: 'quincenal',
-      diaAsignado: 'miércoles',
-      fechaRegistro: '2024-02-01',
-      activo: true,
-      observaciones: 'Acceso por portón lateral',
-      historial: []
-    }
-  ]);
+  const clientService = new ClientService();
+  const cityService = new CityService();
+  const [clientes, setClientes] = useState<Client[]>([]);
+  const [ciudades, setCiudades] = useState<City[]>([]);
+
+  React.useEffect(() => {
+    const fetchClientes = async () => {
+      try {
+        const data = await clientService.getAll();
+        setClientes(Array.isArray(data) ? data : []);
+      } catch (err) {
+        setClientes([]);
+      }
+    };
+    const fetchCiudades = async () => {
+      try {
+        const data = await cityService.getAll();
+        setCiudades(Array.isArray(data) ? data : []);
+      } catch (err) {
+        setCiudades([]);
+      }
+    };
+    fetchClientes();
+    fetchCiudades();
+  }, []);
 
   const [searchText, setSearchText] = useState('');
   const [filtroGrupo, setFiltroGrupo] = useState('todos');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [clienteEditando, setClienteEditando] = useState<Cliente | null>(null);
+  const [clienteEditando, setClienteEditando] = useState<Client | null>(null);
 
   const [formData, setFormData] = useState({
     nombre: '',
     direccion: '',
-    telefono: '',
-    email: '',
-    grupo: 'C' as 'A' | 'B' | 'C',
-    plan: 'semanal' as 'semanal' | 'quincenal' | 'mensual',
-    diaAsignado: 'lunes',
-    observaciones: ''
+    ciudad_id: '',
+    estado: 'prospecto',
+    nombre_contacto: '',
+    celular_contacto: '',
+    correo_contacto: '',
+    fecha_alta: '',
+    fecha_aceptacion: ''
   });
 
   const resetForm = () => {
     setFormData({
       nombre: '',
       direccion: '',
-      telefono: '',
-      email: '',
-      grupo: 'C',
-      plan: 'semanal',
-      diaAsignado: 'lunes',
-      observaciones: ''
+      ciudad_id: '',
+      estado: 'prospecto',
+      nombre_contacto: '',
+      celular_contacto: '',
+      correo_contacto: '',
+      fecha_alta: '',
+      fecha_aceptacion: ''
     });
     setClienteEditando(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (clienteEditando) {
-      // Editar cliente existente
-      setClientes(prev => prev.map(cliente => 
-        cliente.id === clienteEditando.id 
-          ? { ...cliente, ...formData }
-          : cliente
-      ));
-      toast({
-        title: "Cliente actualizado",
-        description: "Los datos del cliente han sido actualizados correctamente.",
-      });
-    } else {
-      // Crear nuevo cliente
-      const nuevoCliente: Cliente = {
-        id: Date.now().toString(),
-        ...formData,
-        fechaRegistro: new Date().toISOString().split('T')[0],
-        activo: true,
-        historial: []
-      };
-      
-      setClientes(prev => [...prev, nuevoCliente]);
-      toast({
-        title: "Cliente registrado",
-        description: "El nuevo cliente ha sido registrado exitosamente.",
-      });
+    try {
+      if (clienteEditando) {
+        await clientService.update(clienteEditando.id, {
+          ...formData,
+          ciudad_id: Number(formData.ciudad_id)
+        });
+        toast({
+          title: "Cliente actualizado",
+          description: "Los datos del cliente han sido actualizados correctamente.",
+        });
+      } else {
+        await clientService.create({
+          ...formData,
+          ciudad_id: Number(formData.ciudad_id)
+        });
+        toast({
+          title: "Cliente registrado",
+          description: "El nuevo cliente ha sido registrado exitosamente.",
+        });
+      }
+      // Refrescar lista
+      const data = await clientService.getAll();
+      setClientes(Array.isArray(data) ? data : []);
+      resetForm();
+      setIsDialogOpen(false);
+    } catch (err: any) {
+      toast({ title: "Error", description: err?.message || "Error al guardar cliente" });
     }
-    
-    resetForm();
-    setIsDialogOpen(false);
   };
 
-  const editarCliente = (cliente: Cliente) => {
+  const editarCliente = (cliente: Client) => {
     setClienteEditando(cliente);
     setFormData({
       nombre: cliente.nombre,
       direccion: cliente.direccion,
-      telefono: cliente.telefono,
-      email: cliente.email,
-      grupo: cliente.grupo,
-      plan: cliente.plan,
-      diaAsignado: cliente.diaAsignado,
-      observaciones: cliente.observaciones
+      ciudad_id: cliente.ciudad_id?.toString() || '',
+      estado: cliente.estado,
+      nombre_contacto: cliente.nombre_contacto,
+      celular_contacto: cliente.celular_contacto,
+      correo_contacto: cliente.correo_contacto,
+      fecha_alta: cliente.fecha_alta || '',
+      fecha_aceptacion: cliente.fecha_aceptacion || ''
     });
     setIsDialogOpen(true);
   };
 
   const clientesFiltrados = clientes.filter(cliente => {
     const coincideTexto = cliente.nombre.toLowerCase().includes(searchText.toLowerCase()) ||
-                         cliente.email.toLowerCase().includes(searchText.toLowerCase());
-    const coincideGrupo = filtroGrupo === 'todos' || cliente.grupo === filtroGrupo;
+                         cliente.correo_contacto.toLowerCase().includes(searchText.toLowerCase());
+    const coincideGrupo = filtroGrupo === 'todos' || cliente.estado === filtroGrupo;
     
     return coincideTexto && coincideGrupo;
   });
 
   const getGrupoColor = (grupo: string) => {
     switch (grupo) {
-      case 'A': return 'bg-green-100 text-green-800';
-      case 'B': return 'bg-blue-100 text-blue-800';
-      case 'C': return 'bg-gray-100 text-gray-800';
+      case 'prospecto': return 'bg-green-100 text-green-800';
+      case 'activo': return 'bg-blue-100 text-blue-800';
+      case 'inactivo': return 'bg-gray-100 text-gray-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -176,115 +172,97 @@ const GestionClientes = () => {
             </DialogHeader>
             
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="nombre">Nombre</Label>
-                  <Input
-                    id="nombre"
-                    value={formData.nombre}
-                    onChange={(e) => setFormData({...formData, nombre: e.target.value})}
-                    required
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="telefono">Teléfono</Label>
-                  <Input
-                    id="telefono"
-                    value={formData.telefono}
-                    onChange={(e) => setFormData({...formData, telefono: e.target.value})}
-                    required
-                  />
-                </div>
-              </div>
-
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label>Nombre</Label>
                 <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  value={formData.nombre}
+                  onChange={e => setFormData({ ...formData, nombre: e.target.value })}
                   required
                 />
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="direccion">Dirección</Label>
+                <Label>Dirección</Label>
                 <Input
-                  id="direccion"
                   value={formData.direccion}
-                  onChange={(e) => setFormData({...formData, direccion: e.target.value})}
+                  onChange={e => setFormData({ ...formData, direccion: e.target.value })}
                   required
                 />
               </div>
-
-              <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="grupo">Grupo</Label>
-                  <Select value={formData.grupo} onValueChange={(value: 'A' | 'B' | 'C') => setFormData({...formData, grupo: value})}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white">
-                      <SelectItem value="A">Grupo A</SelectItem>
-                      <SelectItem value="B">Grupo B</SelectItem>
-                      <SelectItem value="C">Grupo C</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="plan">Plan</Label>
-                  <Select value={formData.plan} onValueChange={(value: 'semanal' | 'quincenal' | 'mensual') => setFormData({...formData, plan: value})}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white">
-                      <SelectItem value="semanal">Semanal</SelectItem>
-                      <SelectItem value="quincenal">Quincenal</SelectItem>
-                      <SelectItem value="mensual">Mensual</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="dia">Día Asignado</Label>
-                  <Select value={formData.diaAsignado} onValueChange={(value) => setFormData({...formData, diaAsignado: value})}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white">
-                      <SelectItem value="lunes">Lunes</SelectItem>
-                      <SelectItem value="martes">Martes</SelectItem>
-                      <SelectItem value="miércoles">Miércoles</SelectItem>
-                      <SelectItem value="jueves">Jueves</SelectItem>
-                      <SelectItem value="viernes">Viernes</SelectItem>
-                      <SelectItem value="sábado">Sábado</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
               <div className="space-y-2">
-                <Label htmlFor="observaciones">Observaciones</Label>
-                <Textarea
-                  id="observaciones"
-                  value={formData.observaciones}
-                  onChange={(e) => setFormData({...formData, observaciones: e.target.value})}
-                  placeholder="Notas adicionales sobre el cliente..."
+                <Label>Ciudad</Label>
+                <Select
+                  value={formData.ciudad_id}
+                  onValueChange={value => setFormData({ ...formData, ciudad_id: value })}
+                  required
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecciona ciudad" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ciudades.map((c) => (
+                      <SelectItem key={c.id} value={String(c.id)}>{c.ciudad}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Estado</Label>
+                <Select
+                  value={formData.estado}
+                  onValueChange={value => setFormData({ ...formData, estado: value })}
+                  required
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="prospecto">Prospecto</SelectItem>
+                    <SelectItem value="activo">Activo</SelectItem>
+                    <SelectItem value="baja">Baja</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Nombre contacto</Label>
+                <Input
+                  value={formData.nombre_contacto}
+                  onChange={e => setFormData({ ...formData, nombre_contacto: e.target.value })}
                 />
               </div>
-
-              <div className="flex justify-end space-x-2">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setIsDialogOpen(false)}
-                >
-                  Cancelar
-                </Button>
-                <Button type="submit" className="bg-green-600 hover:bg-green-700">
+              <div className="space-y-2">
+                <Label>Celular contacto</Label>
+                <Input
+                  value={formData.celular_contacto}
+                  onChange={e => setFormData({ ...formData, celular_contacto: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Correo contacto</Label>
+                <Input
+                  type="email"
+                  value={formData.correo_contacto}
+                  onChange={e => setFormData({ ...formData, correo_contacto: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Fecha alta</Label>
+                <Input
+                  type="date"
+                  value={formData.fecha_alta}
+                  onChange={e => setFormData({ ...formData, fecha_alta: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Fecha aceptación</Label>
+                <Input
+                  type="date"
+                  value={formData.fecha_aceptacion}
+                  onChange={e => setFormData({ ...formData, fecha_aceptacion: e.target.value })}
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="outline" onClick={() => { resetForm(); setIsDialogOpen(false); }}>Cancelar</Button>
+                <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white">
                   {clienteEditando ? 'Actualizar' : 'Registrar'}
                 </Button>
               </div>
@@ -348,26 +326,15 @@ const GestionClientes = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                <div className="flex gap-2">
-                  <Badge className={getGrupoColor(cliente.grupo)}>
-                    Grupo {cliente.grupo}
-                  </Badge>
-                  <Badge className={getPlanColor(cliente.plan)}>
-                    {cliente.plan}
-                  </Badge>
-                </div>
-                
                 <div className="text-sm text-gray-600">
-                  <p><strong>Teléfono:</strong> {cliente.telefono}</p>
-                  <p><strong>Email:</strong> {cliente.email}</p>
-                  <p><strong>Día:</strong> {cliente.diaAsignado}</p>
+                  <p><strong>Ciudad:</strong> {ciudades.find(c => c.id === cliente.ciudad_id)?.ciudad || cliente.ciudad_id}</p>
+                  <p><strong>Estado:</strong> {cliente.estado}</p>
+                  <p><strong>Contacto:</strong> {cliente.nombre_contacto || '—'}</p>
+                  <p><strong>Celular:</strong> {cliente.celular_contacto || '—'}</p>
+                  <p><strong>Correo:</strong> {cliente.correo_contacto || '—'}</p>
+                  <p><strong>Fecha alta:</strong> {cliente.fecha_alta || '—'}</p>
+                  <p><strong>Fecha aceptación:</strong> {cliente.fecha_aceptacion || '—'}</p>
                 </div>
-                
-                {cliente.observaciones && (
-                  <div className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
-                    <strong>Observaciones:</strong> {cliente.observaciones}
-                  </div>
-                )}
               </div>
             </CardContent>
           </Card>
