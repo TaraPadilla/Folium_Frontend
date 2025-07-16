@@ -99,7 +99,7 @@ const LoginForm = () => {
               <p><strong>Operador:</strong> operador@folium.com</p>
               <p><strong>Encargado:</strong> encargado@folium.com</p>
             </div>
-            <p className="mt-2 text-xs">Cualquier contraseña funciona</p>
+            <p className="mt-2 text-xs">secreto123</p>
           </div>
         </CardContent>
       </Card>
