@@ -4,7 +4,6 @@ import { View, Text, StyleSheet, Image } from '@react-pdf/renderer';
 
 // Fondo amarillo decorativo (solo borde izquierdo)
 const backgroundURL = import.meta.env.VITE_IMAGE_URL + '/footer_bg_simple.png';
-console.log('backgroundURL', backgroundURL);
 const iconPhone = import.meta.env.VITE_IMAGE_URL + '/icons/phone.png';
 const iconWeb = import.meta.env.VITE_IMAGE_URL + '/icons/web.png';
 const iconEmail = import.meta.env.VITE_IMAGE_URL + '/icons/email.png';
