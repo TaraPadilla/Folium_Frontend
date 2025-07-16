@@ -1,121 +1,198 @@
 import React from 'react';
-import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
+import Header from './Header';
+import Footer from './Footer';
 
-// Tipos para los props
+// Tipos
 interface Cliente {
   nombre: string;
   direccion: string;
-  nombre_contacto: string;
-  celular_contacto: string;
-  correo_contacto: string;
 }
 
 interface TareaSeleccionada {
   id: number;
   tarea_id: number;
   incluida: boolean | number;
-  visible_para_encargado: boolean | number;
+  tarea?: { nombre?: string };
+  nombre?: string;
+  tarea_nombre?: string;
 }
 
 interface PlanSeleccionado {
   id: number;
-  nombre_personalizado: string;
-  plan: {
-    nombre: string;
-    descripcion?: string;
-  };
+  plan: { nombre: string };
   tareas_seleccionadas: TareaSeleccionada[];
 }
 
-interface CotizacionPdfProps {
+interface Props {
   cliente: Cliente;
   planes_seleccionados: PlanSeleccionado[];
+  consideraciones?: string;
+  propuesta_economica?: string;
+  id?: number;
+  fecha_creacion?: string;
 }
 
+// Placeholder logo (reemplazable)
+const logoURL = `${window.location.origin}/LogoFolium.jpg`;
+const firmaURL = `${window.location.origin}/firma.png`;
+
 const styles = StyleSheet.create({
-  page: { padding: 32, fontSize: 11 },
-  seccion: { marginBottom: 16 },
-  titulo: { fontSize: 18, fontWeight: 'bold', marginBottom: 8 },
-  subtitulo: { fontSize: 14, fontWeight: 'bold', marginBottom: 6 },
-  tabla: { display: 'flex', width: 'auto', marginVertical: 6 },
-  fila: { flexDirection: 'row' },
-  celda: { flex: 1, padding: 4, border: '1px solid #ddd' },
-  celdaHeader: { backgroundColor: '#eee', fontWeight: 'bold' },
-  tareaIncluida: { color: '#1a7f37', fontWeight: 'bold' },
-  tareaNoIncluida: { color: '#b91c1c', fontWeight: 'bold' },
+  page: {
+    padding: 50,
+    fontSize: 11,
+    fontFamily: 'Helvetica',
+    lineHeight: 1.5,
+  },
+  header: {
+    width: '100%',
+    height: 100,
+  },
+  logo: {
+    width: 120,
+    height: 120,
+    marginLeft: 350,
+  },
+  fieldBlock: { marginBottom: 8 },
+  tituloPrincipal: {
+    fontSize: 14,
+    textAlign: 'center',
+    marginVertical: 16,
+    textDecoration: 'underline',
+  },
+  subtitulo: {
+    fontWeight: 'bold',
+    fontSize: 12,
+    marginBottom: 6,
+    textDecoration: 'underline',
+  },
+  tarea: {
+    fontWeight: 'bold',
+    marginBottom: 2,
+  },
+  firma: {
+    width: 100,
+    height: 40,
+    marginBottom: 4,
+  },
+  bloqueFirma: {
+    marginTop: 40,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+  },
+  arriba: {
+    width: 595.28, // ancho exacto de A4
+    height: 100,
+    marginTop: -25,
+    marginLeft: -25,
+  },  
 });
 
-export const CotizacionPdf: React.FC<CotizacionPdfProps & { id?: number; fecha_creacion?: string }> = ({ cliente, planes_seleccionados, id, fecha_creacion }) => {
-  // Reunir todas las tareas incluidas y no incluidas (sin repetir)
-  const tareasIncluidas: { id: number; nombre: string }[] = [];
-  const tareasNoIncluidas: { id: number; nombre: string }[] = [];
-  // Para evitar duplicados
+export const CotizacionPdf: React.FC<Props> = ({
+  cliente,
+  planes_seleccionados,
+  consideraciones,
+  propuesta_economica,
+  id,
+  fecha_creacion,
+}) => {
+  const tareasIncluidas: string[] = [];
+  const tareasExcluidas: string[] = [];
   const idsIncluidas = new Set<number>();
-  const idsNoIncluidas = new Set<number>();
 
-  planes_seleccionados.forEach(plan => {
-    if (Array.isArray(plan.tareas_seleccionadas)) {
-      plan.tareas_seleccionadas.forEach(tarea => {
-        // Simulamos que el nombre de la tarea viene en tarea.nombre o tarea.tarea_nombre
-        const nombre = (tarea as any).tarea?.nombre || (tarea as any).nombre || (tarea as any).tarea_nombre || `Tarea #${tarea.tarea_id}`;
-        if (tarea.incluida) {
-          if (!idsIncluidas.has(tarea.tarea_id)) {
-            tareasIncluidas.push({ id: tarea.tarea_id, nombre });
-            idsIncluidas.add(tarea.tarea_id);
-          }
-        } else {
-          if (!idsNoIncluidas.has(tarea.tarea_id)) {
-            tareasNoIncluidas.push({ id: tarea.tarea_id, nombre });
-            idsNoIncluidas.add(tarea.tarea_id);
-          }
+  planes_seleccionados.forEach((plan) => {
+    plan.tareas_seleccionadas.forEach((t) => {
+      const nombre = t.tarea?.nombre || t.nombre || t.tarea_nombre || `Tarea #${t.tarea_id}`;
+      if (t.incluida) {
+        if (!idsIncluidas.has(t.tarea_id)) {
+          tareasIncluidas.push(nombre);
+          idsIncluidas.add(t.tarea_id);
         }
-      });
-    }
+      } else {
+        if (!idsIncluidas.has(t.tarea_id)) {
+          tareasExcluidas.push(nombre);
+        }
+      }
+    });
   });
-
-  // Quitar duplicados entre incluidas y no incluidas
-  const tareasNoIncluidasFiltradas = tareasNoIncluidas.filter(t => !idsIncluidas.has(t.id));
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Encabezado */}
-        <View style={styles.seccion}>
-          <Text style={styles.titulo}>COTIZACIÓN DE SERVICIOS #{id ?? ''}</Text>
+        <Header />
+
+        {/* Datos */}
+        <View style={styles.fieldBlock}>
+          <Text>Presupuesto Nº {id ?? ''}</Text>
           <Text>Fecha: {fecha_creacion ? new Date(fecha_creacion).toLocaleDateString() : new Date().toLocaleDateString()}</Text>
-        </View>
-        {/* Datos del cliente */}
-        <View style={styles.seccion}>
           <Text>Cliente: {cliente.nombre}</Text>
           <Text>Dirección: {cliente.direccion}</Text>
         </View>
-        {/* Texto de introducción */}
-        <View style={styles.seccion}>
-          <Text>Tenemos el agrado de presentar la siguiente cotización, la cual incluye los puntos que se detallan a continuación:</Text>
-        </View>
-        {/* Lista de tareas incluidas */}
-        {tareasIncluidas.length > 0 && (
-          <View style={styles.seccion}>
-            {tareasIncluidas.map((t) => (
-              <Text key={t.id}>{t.nombre}</Text>
+
+        {/* Título */}
+        <Text style={styles.tituloPrincipal}>PRESUPUESTO</Text>
+
+        {/* Subtítulo */}
+        <Text style={styles.subtitulo}>PROPUESTA TÉCNICA</Text>
+        <Text style={{ marginBottom: 10 }}>
+          Tenemos el agrado de presentar la siguiente cotización, la cual incluye los puntos que se detallan a continuación:
+        </Text>
+
+        {/* Tareas incluidas */}
+        {tareasIncluidas.map((nombre, i) => (
+          <Text key={i} style={styles.tarea}>{nombre}</Text>
+        ))}
+
+        {/* Exclusiones */}
+        {tareasExcluidas.length > 0 && (
+          <>
+            <Text style={{ marginTop: 12, marginBottom: 10 }}>
+              Los siguientes puntos no están incluidos en la presente cotización y, en caso de requerirse, deberán ser coordinados y presupuestados por separado:
+            </Text>
+            {tareasExcluidas.map((nombre, i) => (
+              <Text key={i} style={styles.tarea}>{nombre}</Text>
             ))}
-          </View>
+          </>
         )}
-        {/* Texto de exclusiones */}
-        {tareasNoIncluidasFiltradas.length > 0 && (
-          <View style={styles.seccion}>
-            <Text>Los siguientes puntos no están incluidos en la presente cotización y, en caso de requerirse, deberán ser coordinados y presupuestados por separado:</Text>
-            {tareasNoIncluidasFiltradas.map((t) => (
-              <Text key={t.id}>{t.nombre}</Text>
-            ))}
-          </View>
+
+        {/* Aviso EPP */}
+        <Text style={{ marginTop: 12 }}>
+          Todo el personal asignado pertenece a nuestra empresa, se encuentra debidamente uniformado, con aportes al día y equipado con los elementos de protección personal (EPP) correspondientes, según las normativas vigentes.
+        </Text>
+        <Footer />
+      </Page>
+      <Page size="A4" style={styles.page}>
+        <Header />
+        {/* Consideraciones */}
+        {consideraciones?.trim() && (
+          <>
+            <Text style={[styles.subtitulo, { marginTop: 20 }]}>CONSIDERACIONES</Text>
+            <Text>{consideraciones}</Text>
+          </>
         )}
-        {/* Texto final */}
-        <View style={styles.seccion}>
-          <Text>
-            Todo el personal asignado pertenece a nuestra empresa, se encuentra debidamente uniformado, con aportes al día y equipado con los elementos de protección personal (EPP) correspondientes, según las normativas vigentes.
-          </Text>
+
+        {/* Propuesta económica */}
+        {propuesta_economica?.trim() && (
+          <>
+            <Text style={[styles.subtitulo, { marginTop: 20 }]}>PROPUESTA ECONÓMICA</Text>
+            <Text style={{fontWeight: 'bold'}}>{propuesta_economica}</Text>
+          </>
+        )}
+
+
+        {/* Cierre */}
+        <Text style={{ marginTop: 16 }}>
+          Quedamos a las órdenes por cualquier duda o aclaración que necesite. Será un gusto para nosotros poder llevar adelante este trabajo.
+        </Text>
+
+        {/* Firma */}
+        <View style={styles.bloqueFirma}>
+          <Image src={firmaURL} style={styles.firma} />
+          <Text>Marcos Lorenzo</Text>
+          <Text>Ingeniero Agrónomo</Text>
+          <Text>DIRECTOR</Text>
         </View>
+        <Footer />
       </Page>
     </Document>
   );

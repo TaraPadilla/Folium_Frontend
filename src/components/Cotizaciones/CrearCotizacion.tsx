@@ -35,6 +35,8 @@ const CrearCotizacion: React.FC = () => {
   const [mostrarPreview, setMostrarPreview] = useState(false);
   const [planesAgregados, setPlanesAgregados] = useState<Array<{plan: PlanConTareas, tareas: Tarea[]}>>([]);
   const [guardandoCotizacion, setGuardandoCotizacion] = useState(false);
+  const [consideraciones, setConsideraciones] = useState('');
+  const [propuestaEconomica, setPropuestaEconomica] = useState('');
 
   const handleGuardarCotizacion = async () => {
     if (!clienteSeleccionado || planesAgregados.length === 0) {
@@ -47,6 +49,8 @@ const CrearCotizacion: React.FC = () => {
       // Construye el objeto cotizacion sin campos de control ni id
       const cotizacion = {
         cliente_id: clienteSeleccionado.id,
+        consideraciones,
+        propuesta_economica: propuestaEconomica,
         // Agrega aquí otros campos requeridos por Cotizacion (ejemplo: fecha, descripcion, etc.)
       } as any;
       const cotizacionId = await negocioService.guardarCotizacionConPlanesYtareas(cotizacion, planesAgregados);
@@ -83,13 +87,35 @@ const CrearCotizacion: React.FC = () => {
           </div>
         </div>
       )}
-      {/* Paso 2: Selección de planes y tareas, solo si hay cliente */}
+      {/* Paso 2: Consideraciones y Propuesta económica */}
       {clienteSeleccionado && (
-        <SeleccionarPlanConTareas
-          planes={planes}
-          onPlanSeleccionado={setPlanSeleccionado}
-          onPlanesAgregadosChange={setPlanesAgregados}
-        />
+        <>
+          <div className="mb-4">
+            <label className="block font-semibold mb-1" htmlFor="consideraciones">Consideraciones</label>
+            <textarea
+              id="consideraciones"
+              className="w-full border rounded px-3 py-2 min-h-[60px]"
+              placeholder="Escribe aquí cualquier consideración relevante para la cotización..."
+              value={consideraciones}
+              onChange={e => setConsideraciones(e.target.value)}
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block font-semibold mb-1" htmlFor="propuesta_economica">Propuesta económica</label>
+            <textarea
+              id="propuesta_economica"
+              className="w-full border rounded px-3 py-2 min-h-[60px]"
+              placeholder="Escribe aquí la propuesta económica, condiciones de pago, etc..."
+              value={propuestaEconomica}
+              onChange={e => setPropuestaEconomica(e.target.value)}
+            />
+          </div>
+          <SeleccionarPlanConTareas
+            planes={planes}
+            onPlanSeleccionado={setPlanSeleccionado}
+            onPlanesAgregadosChange={setPlanesAgregados}
+          />
+        </>
       )}
       {/* Paso 3: Guardar cotización, solo si hay cliente */}
       {clienteSeleccionado && (
