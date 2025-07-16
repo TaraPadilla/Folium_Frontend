@@ -298,30 +298,65 @@ const GestionClientes = () => {
       {/* Lista de clientes */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {clientesFiltrados.map((cliente) => (
-          <Card key={cliente.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader>
+          <Card
+            key={cliente.id}
+            className="transition-shadow shadow-md hover:shadow-xl rounded-xl border border-gray-200 bg-gradient-to-br from-white via-gray-50 to-gray-100 relative overflow-hidden"
+          >
+            <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-lg">{cliente.nombre}</CardTitle>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => editarCliente(cliente)}
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
+                <div>
+                  <CardTitle className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                    {cliente.nombre}
+                    <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-semibold ${getGrupoColor(cliente.estado)}`}>{cliente.estado.charAt(0).toUpperCase() + cliente.estado.slice(1)}</span>
+                  </CardTitle>
+                  <CardDescription className="text-gray-500 text-sm mt-1">{cliente.direccion}</CardDescription>
+                </div>
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => editarCliente(cliente)}
+                    className="text-blue-600 hover:bg-blue-50"
+                    title="Editar"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-red-600 hover:bg-red-50"
+                    title="Eliminar"
+                    onClick={async () => {
+                      if (window.confirm(`¿Seguro que deseas eliminar a ${cliente.nombre}?`)) {
+                        try {
+                          await clientService.remove(cliente.id);
+                          const data = await clientService.getAll();
+                          setClientes(Array.isArray(data) ? data : []);
+                          toast({ title: 'Cliente eliminado', description: 'El cliente fue eliminado correctamente.' });
+                        } catch (err: any) {
+                          toast({ title: 'Error al eliminar', description: err?.message || 'No se pudo eliminar el cliente.' });
+                        }
+                      }
+                    }}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3m5 0H6" /></svg>
+                  </Button>
+                </div>
               </div>
-              <CardDescription>{cliente.direccion}</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="text-sm text-gray-600">
-                  <p><strong>Ciudad:</strong> {ciudades.find(c => c.id === cliente.ciudad_id)?.ciudad || cliente.ciudad_id}</p>
-                  <p><strong>Estado:</strong> {cliente.estado}</p>
-                  <p><strong>Contacto:</strong> {cliente.nombre_contacto || '—'}</p>
-                  <p><strong>Celular:</strong> {cliente.celular_contacto || '—'}</p>
-                  <p><strong>Correo:</strong> {cliente.correo_contacto || '—'}</p>
-                  <p><strong>Fecha alta:</strong> {cliente.fecha_alta || '—'}</p>
-                  <p><strong>Fecha aceptación:</strong> {cliente.fecha_aceptacion || '—'}</p>
+            <CardContent className="pt-0">
+              <div className="space-y-2 text-sm text-gray-700">
+                <div className="flex flex-wrap gap-x-6 gap-y-1">
+                  <span><strong>Ciudad:</strong> {ciudades.find(c => c.id === cliente.ciudad_id)?.ciudad || cliente.ciudad_id}</span>
+                  <span><strong>Contacto:</strong> {cliente.nombre_contacto || '—'}</span>
+                </div>
+                <div className="flex flex-wrap gap-x-6 gap-y-1">
+                  <span><strong>Celular:</strong> {cliente.celular_contacto || '—'}</span>
+                  <span><strong>Correo:</strong> {cliente.correo_contacto || '—'}</span>
+                </div>
+                <div className="flex flex-wrap gap-x-6 gap-y-1">
+                  <span><strong>Fecha alta:</strong> {cliente.fecha_alta || '—'}</span>
+                  <span><strong>Fecha aceptación:</strong> {cliente.fecha_aceptacion || '—'}</span>
                 </div>
               </div>
             </CardContent>
