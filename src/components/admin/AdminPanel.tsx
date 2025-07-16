@@ -8,9 +8,9 @@ import { PlusIcon, SearchIcon, SettingsIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { UsuarioService } from "@/services/api/UsuarioService";
 import { CityService } from "@/services/api/CityService";
-import UsersTab from "./tabs/UsersTab";
 import CityTab from "./tabs/CityTab";
 import PlanesTab from "./tabs/PlanesTab";
+import TareaTab from "./tabs/TareaTab";
 
 const cityService = new CityService();
 const userService = new UsuarioService();
@@ -53,17 +53,17 @@ const AdminPanel: React.FC = () => {
         </div>
       </div>
 
-      <Tabs defaultValue="users">
+      <Tabs defaultValue="cities">
         <TabsList className="flex flex-wrap gap-2 mb-6">
-          <TabsTrigger value="users">Usuarios</TabsTrigger>
           <TabsTrigger value="cities">Ciudades</TabsTrigger>
           <TabsTrigger value="planes">Planes de Mantenimiento</TabsTrigger>
+          <TabsTrigger value="tareas">Tareas</TabsTrigger>
         </TabsList>
 
         <div className="mt-6">
-          <TabsContent value="users"><UsersTab /></TabsContent>
           <TabsContent value="cities"><CityTab /></TabsContent>
           <TabsContent value="planes"><PlanesTab /></TabsContent>
+          <TabsContent value="tareas"><TareaTab /></TabsContent>
         </div>
       </Tabs> 
     </div>

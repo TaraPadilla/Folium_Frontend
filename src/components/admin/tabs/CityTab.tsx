@@ -21,8 +21,9 @@ const CityTab: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState({
     id: null,
+    departamento: "",
     ciudad: "",
-    provincia: "",
+    zona: "",
   });
 
   const loadCities = async () => {
@@ -35,20 +36,20 @@ const CityTab: React.FC = () => {
   };
 
   const handleSave = async () => {
-    if (!form.ciudad.trim() || !form.provincia.trim()) {
+    if (!form.departamento.trim() || !form.ciudad.trim() || !form.zona.trim()) {
       console.warn("Formulario inválido");
       return;
     }
 
     try {
       if (form.id) {
-        await cityService.update(form.id, { ciudad: form.ciudad, provincia: form.provincia });
+        await cityService.update(form.id, { departamento: form.departamento, ciudad: form.ciudad, zona: form.zona });
       } else {
-        await cityService.create({ ciudad: form.ciudad, provincia: form.provincia });
+        await cityService.create({ departamento: form.departamento, ciudad: form.ciudad, zona: form.zona });
       }
 
       await loadCities();
-      setForm({ id: null, ciudad: "", provincia: "" });
+      setForm({ id: null, departamento: "", ciudad: "", zona: "" });
       setModalOpen(false);
     } catch (err: any) {
       console.error("❌ Error al guardar ciudad:", err?.response ?? err);
@@ -56,7 +57,7 @@ const CityTab: React.FC = () => {
   };
 
   const handleEdit = (city) => {
-    setForm({ id: city.id, ciudad: city.ciudad, provincia: city.provincia });
+    setForm({ id: city.id, departamento: city.departamento, ciudad: city.ciudad, zona: city.zona });
     setModalOpen(true);
   };
 
@@ -78,69 +79,47 @@ const CityTab: React.FC = () => {
 
   const filtered = cities.filter((c) =>
     (c.ciudad ?? "").toLowerCase().includes(search.toLowerCase()) ||
-    (c.provincia ?? "").toLowerCase().includes(search.toLowerCase())
+    (c.departamento ?? "").toLowerCase().includes(search.toLowerCase()) ||
+    (c.zona ?? "").toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <>
       <Card>
-        <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-          <div>
-            <CardTitle>Ciudades</CardTitle>
-            <CardDescription>Gestión de ciudades y provincias</CardDescription>
-          </div>
-          <div className="flex flex-col md:flex-row md:items-center gap-4 w-full md:w-auto">
-            <div className="relative w-full md:w-64">
-              <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Buscar ciudades..."
-                className="pl-10 w-full"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-            <Button
-              onClick={() => {
-                setForm({ id: null, ciudad: "", provincia: "" });
-                setModalOpen(true);
-              }}
-            >
-              <PlusIcon className="h-4 w-4 mr-2" />
-              Agregar ciudad
-            </Button>
-          </div>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Ciudades</CardTitle>
+          <Button
+            onClick={() => {
+              setForm({ id: null, departamento: "", ciudad: "", zona: "" });
+              setModalOpen(true);
+            }}
+          >
+            <PlusIcon className="h-4 w-4 mr-2" /> Agregar ciudad
+          </Button>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID</TableHead>
+                  <TableHead>Departamento</TableHead>
                   <TableHead>Ciudad</TableHead>
-                  <TableHead>Provincia</TableHead>
+                  <TableHead>Zona</TableHead>
                   <TableHead className="text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filtered.map((city) => (
                   <TableRow key={city.id}>
-                    <TableCell>{city.id}</TableCell>
+                    <TableCell>{city.departamento}</TableCell>
                     <TableCell>{city.ciudad}</TableCell>
-                    <TableCell>{city.provincia}</TableCell>
+                    <TableCell>{city.zona}</TableCell>
                     <TableCell className="text-right">
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEdit(city)}
-                        >
+                      <div className="flex gap-2 justify-end">
+                        <Button variant="outline" size="sm" onClick={() => handleEdit(city)}>
                           <EditIcon className="h-4 w-4" />
                         </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleDelete(city.id)}
-                        >
+                        <Button variant="destructive" size="sm" onClick={() => handleDelete(city.id)}>
                           <TrashIcon className="h-4 w-4" />
                         </Button>
                       </div>
@@ -162,14 +141,19 @@ const CityTab: React.FC = () => {
           </DialogHeader>
           <div className="space-y-4">
             <Input
-              placeholder="Nombre de la ciudad"
+              placeholder="Departamento"
+              value={form.departamento}
+              onChange={(e) => setForm({ ...form, departamento: e.target.value })}
+            />
+            <Input
+              placeholder="Ciudad"
               value={form.ciudad}
               onChange={(e) => setForm({ ...form, ciudad: e.target.value })}
             />
             <Input
-              placeholder="Nombre de la provincia"
-              value={form.provincia}
-              onChange={(e) => setForm({ ...form, provincia: e.target.value })}
+              placeholder="Zona"
+              value={form.zona}
+              onChange={(e) => setForm({ ...form, zona: e.target.value })}
             />
             <div className="flex justify-end gap-2">
               <Button onClick={() => setModalOpen(false)}>Cancelar</Button>

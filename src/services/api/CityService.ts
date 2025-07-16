@@ -2,8 +2,9 @@ import { BaseApiService } from './BaseApiService';
 
 export interface City {
   id: number;
+  departamento: string;
   ciudad: string;
-  provincia: string;
+  zona: string;
   createdAt: string | null;
   updatedAt: string | null;
   deletedAt: string | null;

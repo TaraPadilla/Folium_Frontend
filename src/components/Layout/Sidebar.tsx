@@ -42,7 +42,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
           children: [
             { id: 'dashboard', label: 'Dashboard', icon: Settings },
             { id: 'clientes', label: 'Clientes', icon: Users },
-            { id: 'prospectos', label: 'Prospectos', icon: UserPlus },
             { id: 'catalogos', label: 'Catálogos', icon: Settings },
             { id: 'usuarios', label: 'Usuarios', icon: Settings },
           ]

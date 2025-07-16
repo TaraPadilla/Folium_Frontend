@@ -3,7 +3,7 @@ import { BaseApiService } from './BaseApiService';
 export interface Usuario {
   id: number;
   nombre: string;
-  correo: string;
+  email: string;
   rol: string;
   created_at: string;
   updated_at: string;
