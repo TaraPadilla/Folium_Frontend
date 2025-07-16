@@ -65,9 +65,8 @@ const SeleccionarPlanConTareas: React.FC<SeleccionarPlanConTareasProps> = ({ pla
     if (planesAgregados.some(pa => pa.plan.id === planId)) return;
     const plan = planes.find(p => p.id === planId);
     if (plan) {
-      // Solo agregar tareas incluidas
-      const tareasIncluidas = tareas.filter(t => t.incluida !== false);
-      setPlanesAgregados(prev => [...prev, { plan, tareas: tareasIncluidas }]);
+      // Agregar todas las tareas, manteniendo el valor de 'incluida'
+      setPlanesAgregados(prev => [...prev, { plan, tareas }]);
       setPlanId(null);
       setTareas([]);
     }
@@ -138,7 +137,7 @@ const SeleccionarPlanConTareas: React.FC<SeleccionarPlanConTareasProps> = ({ pla
             variant="default"
             className="mb-6"
             onClick={handleAgregarPlan}
-            disabled={!planId || tareas.filter(t => t.incluida !== false).length === 0}
+            disabled={!planId || tareas.length === 0}
           >
             Agregar este plan
           </Button>
