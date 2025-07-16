@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+public/favicon_.ico
+github_actions_key.pub
+github_actions_key
