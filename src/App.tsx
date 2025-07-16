@@ -10,6 +10,7 @@ import LoginForm from "./components/Login";
 import AdminPanel from "./components/admin/AdminPanel";
 import GestionClientes from "./components/Clientes/GestionClientes";
 import CotizacionesList from "./components/Cotizaciones/CotizacionesList";
+import CrearCotizacion from "./components/Cotizaciones/CrearCotizacion";
 import { Navigate, Outlet } from "react-router-dom";
 import AppLayout from "./components/Layout/AppLayout";
 import Dashboard from "./components/Dashboard/Dashboard";
@@ -54,6 +55,7 @@ import { useAuth } from "@/contexts/AuthContext";
                     <Route path="catalogos" element={<AdminPanel />} />
                     <Route path="clientes" element={<GestionClientes />} />
 <Route path="cotizaciones" element={<CotizacionesList />} />
+<Route path="cotizaciones/nueva" element={<CrearCotizacion />} />
                     <Route path="*" element={<NotFound />} />
                   </Route>
               </Route>

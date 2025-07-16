@@ -20,7 +20,10 @@ const CotizacionesList: React.FC = () => {
 
   return (
     <div className="bg-white p-6 rounded shadow">
-      <h2 className="text-xl font-bold mb-4">Cotizaciones</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold">Cotizaciones</h2>
+        <NuevaCotizacionButton />
+      </div>
       <table className="min-w-full table-auto border">
         <thead>
           <tr className="bg-green-100">
@@ -46,6 +49,20 @@ const CotizacionesList: React.FC = () => {
         </tbody>
       </table>
     </div>
+  );
+};
+
+import { useNavigate } from 'react-router-dom';
+
+const NuevaCotizacionButton: React.FC = () => {
+  const navigate = useNavigate();
+  return (
+    <button
+      className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded shadow"
+      onClick={() => navigate('/cotizaciones/nueva')}
+    >
+      Nueva Cotización
+    </button>
   );
 };
 
