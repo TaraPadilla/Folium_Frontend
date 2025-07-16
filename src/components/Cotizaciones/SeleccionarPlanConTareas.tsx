@@ -28,9 +28,10 @@ export interface PlanConTareas extends Omit<PlanMantenimiento, 'createdAt' | 'up
 interface SeleccionarPlanConTareasProps {
   planes: PlanConTareas[];
   onPlanSeleccionado?: (plan: PlanConTareas) => void;
+  onPlanesAgregadosChange?: (planes: Array<{plan: PlanConTareas, tareas: Tarea[]}>) => void;
 }
 
-const SeleccionarPlanConTareas: React.FC<SeleccionarPlanConTareasProps> = ({ planes, onPlanSeleccionado }) => {
+const SeleccionarPlanConTareas: React.FC<SeleccionarPlanConTareasProps> = ({ planes, onPlanSeleccionado, onPlanesAgregadosChange }) => {
   const [planId, setPlanId] = useState<number | null>(null);
   const [tareas, setTareas] = useState<Tarea[]>([]);
   const [planesAgregados, setPlanesAgregados] = useState<Array<{plan: PlanConTareas, tareas: Tarea[]}>>([]);
@@ -66,14 +67,18 @@ const SeleccionarPlanConTareas: React.FC<SeleccionarPlanConTareasProps> = ({ pla
     const plan = planes.find(p => p.id === planId);
     if (plan) {
       // Agregar todas las tareas, manteniendo el valor de 'incluida'
-      setPlanesAgregados(prev => [...prev, { plan, tareas }]);
+      const nuevosPlanes = [...planesAgregados, { plan, tareas }];
+      setPlanesAgregados(nuevosPlanes);
+      if (onPlanesAgregadosChange) onPlanesAgregadosChange(nuevosPlanes);
       setPlanId(null);
       setTareas([]);
     }
   };
 
   const handleEliminarPlanAgregado = (planIdAEliminar: number) => {
-    setPlanesAgregados(prev => prev.filter(pa => pa.plan.id !== planIdAEliminar));
+    const nuevosPlanes = planesAgregados.filter(pa => pa.plan.id !== planIdAEliminar);
+    setPlanesAgregados(nuevosPlanes);
+    if (onPlanesAgregadosChange) onPlanesAgregadosChange(nuevosPlanes);
   };
 
   // Deshabilitar planes ya agregados en el selector

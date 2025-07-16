@@ -30,6 +30,8 @@ const CrearCotizacion: React.FC = () => {
   const [planSeleccionado, setPlanSeleccionado] = useState<PlanConTareas | null>(null);
   const [clienteSeleccionado, setClienteSeleccionado] = useState<Client | null>(null);
   const [mostrarCrearCliente, setMostrarCrearCliente] = useState(false);
+  const [mostrarPreview, setMostrarPreview] = useState(false);
+  const [planesAgregados, setPlanesAgregados] = useState<Array<{plan: PlanConTareas, tareas: Tarea[]}>>([]);
 
   useEffect(() => {
     fetchPlanesConTareas().then(setPlanes);
@@ -56,12 +58,63 @@ const CrearCotizacion: React.FC = () => {
       )}
       {/* Paso 2: Selección de planes y tareas, solo si hay cliente */}
       {clienteSeleccionado && (
-        <SeleccionarPlanConTareas planes={planes} onPlanSeleccionado={setPlanSeleccionado} />
+        <SeleccionarPlanConTareas
+          planes={planes}
+          onPlanSeleccionado={setPlanSeleccionado}
+          onPlanesAgregadosChange={setPlanesAgregados}
+        />
       )}
       {/* Paso 3: Guardar cotización, solo si hay cliente */}
       {clienteSeleccionado && (
-        <div className="mt-6">
+        <div className="mt-6 flex gap-4">
+          <Button variant="outline" onClick={() => setMostrarPreview(true)}>Previsualizar PDF</Button>
           <Button variant="default">Guardar Cotización</Button>
+        </div>
+      )}
+      {/* Modal de previsualización PDF */}
+      {mostrarPreview && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
+          <div className="bg-white p-8 rounded shadow-lg max-w-2xl w-full relative">
+            <h3 className="text-xl font-bold mb-4">Previsualización de Cotización (PDF)</h3>
+            <div className="mb-4">
+              <div className="mb-2"><b>Cliente:</b> {clienteSeleccionado?.nombre}</div>
+              <div className="mb-2"><b>Dirección:</b> {clienteSeleccionado?.direccion}</div>
+              <div className="mb-2"><b>Contacto:</b> {clienteSeleccionado?.nombre_contacto} ({clienteSeleccionado?.celular_contacto})</div>
+            </div>
+            <div>
+              <b>Planes y Tareas:</b>
+              {planesAgregados && planesAgregados.length > 0 ? (
+                <div className="mt-2">
+                  {planesAgregados.map(({ plan, tareas }) => (
+                    <div key={plan.id} className="mb-4">
+                      <div className="font-semibold">{plan.nombre}</div>
+                      <table className="min-w-full table-auto border text-xs mt-1">
+                        <thead>
+                          <tr className="bg-green-50">
+                            <th className="px-2 py-1 border">Tarea</th>
+                            <th className="px-2 py-1 border">Incluida</th>
+                            <th className="px-2 py-1 border">Visible para encargado</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {tareas.map(tarea => (
+                            <tr key={tarea.id}>
+                              <td className="px-2 py-1 border">{tarea.nombre}</td>
+                              <td className="px-2 py-1 border text-center">{tarea.incluida ? 'Sí' : 'No'}</td>
+                              <td className="px-2 py-1 border text-center">{tarea.visible_para_encargado ? 'Sí' : 'No'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="mt-2 text-sm text-gray-700">No hay planes seleccionados.</div>
+              )}
+            </div>
+            <Button variant="outline" className="absolute top-4 right-4" onClick={() => setMostrarPreview(false)}>Cerrar</Button>
+          </div>
         </div>
       )}
     </div>
