@@ -12,7 +12,7 @@ const AppLayout: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
       <AppHeader />
       <div className="flex-1 flex">
         <AppSidebar activeTab={activeTab} setActiveTab={setActiveTab}/>
-        <main className="flex-1 p-6 overflow-y-auto md:ml-56">
+        <main className="flex-1 p-6 overflow-y-auto">
           {children || <Outlet />}
         </main>
       </div>
