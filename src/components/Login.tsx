@@ -95,9 +95,9 @@ const LoginForm = () => {
           <div className="mt-6 text-sm text-gray-600">
             <p className="font-medium mb-2">Usuarios de prueba:</p>
             <div className="space-y-1">
-              <p><strong>Admin:</strong> admin@jardineria.com</p>
-              <p><strong>Operador:</strong> maria@jardineria.com</p>
-              <p><strong>Encargado:</strong> carlos@jardineria.com</p>
+              <p><strong>Admin:</strong> admin@folium.com</p>
+              <p><strong>Operador:</strong> operador@folium.com</p>
+              <p><strong>Encargado:</strong> encargado@folium.com</p>
             </div>
             <p className="mt-2 text-xs">Cualquier contraseña funciona</p>
           </div>
