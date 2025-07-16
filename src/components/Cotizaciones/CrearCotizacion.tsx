@@ -25,6 +25,8 @@ const fetchPlanesConTareas = async (): Promise<PlanConTareas[]> => {
 import SeleccionarClienteDialog from './SeleccionarClienteDialog';
 import { Client } from '@/services/api/ClientService';
 
+import { NegocioService } from '@/services/api/NegocioService';
+
 const CrearCotizacion: React.FC = () => {
   const [planes, setPlanes] = useState<PlanConTareas[]>([]);
   const [planSeleccionado, setPlanSeleccionado] = useState<PlanConTareas | null>(null);
@@ -32,6 +34,31 @@ const CrearCotizacion: React.FC = () => {
   const [mostrarCrearCliente, setMostrarCrearCliente] = useState(false);
   const [mostrarPreview, setMostrarPreview] = useState(false);
   const [planesAgregados, setPlanesAgregados] = useState<Array<{plan: PlanConTareas, tareas: Tarea[]}>>([]);
+  const [guardandoCotizacion, setGuardandoCotizacion] = useState(false);
+
+  const handleGuardarCotizacion = async () => {
+    if (!clienteSeleccionado || planesAgregados.length === 0) {
+      alert('Debes seleccionar un cliente y al menos un plan');
+      return;
+    }
+    setGuardandoCotizacion(true);
+    try {
+      const negocioService = new NegocioService();
+      // Construye el objeto cotizacion sin campos de control ni id
+      const cotizacion = {
+        cliente_id: clienteSeleccionado.id,
+        // Agrega aquí otros campos requeridos por Cotizacion (ejemplo: fecha, descripcion, etc.)
+      } as any;
+      const cotizacionId = await negocioService.guardarCotizacionConPlanesYtareas(cotizacion, planesAgregados);
+      alert('Cotización guardada exitosamente con id: ' + cotizacionId);
+      // Opcional: limpiar estados o navegar
+    } catch (e) {
+      alert('Error al guardar la cotización');
+    } finally {
+      setGuardandoCotizacion(false);
+    }
+  };
+
 
   useEffect(() => {
     fetchPlanesConTareas().then(setPlanes);
@@ -68,7 +95,13 @@ const CrearCotizacion: React.FC = () => {
       {clienteSeleccionado && (
         <div className="mt-6 flex gap-4">
           <Button variant="outline" onClick={() => setMostrarPreview(true)}>Previsualizar PDF</Button>
-          <Button variant="default">Guardar Cotización</Button>
+          <Button
+            variant="default"
+            onClick={handleGuardarCotizacion}
+            disabled={guardandoCotizacion}
+          >
+            {guardandoCotizacion ? 'Guardando...' : 'Guardar Cotización'}
+          </Button>
         </div>
       )}
       {/* Modal de previsualización PDF */}
