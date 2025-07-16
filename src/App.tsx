@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import NotFound from "./pages/NotFound";
 import LoginForm from "./components/Login";
 import AdminPanel from "./components/admin/AdminPanel";
+import GestionClientes from "./components/Clientes/GestionClientes";
 import { Navigate, Outlet } from "react-router-dom";
 import AppLayout from "./components/Layout/AppLayout";
 import Dashboard from "./components/Dashboard/Dashboard";
@@ -50,6 +51,7 @@ import { useAuth } from "@/contexts/AuthContext";
                     <Route path="admin" element={<AdminPanel />} />
                     <Route path="dashboard" element={<Dashboard />} />
                     <Route path="catalogos" element={<AdminPanel />} />
+                    <Route path="clientes" element={<GestionClientes />} />
                     <Route path="*" element={<NotFound />} />
                   </Route>
               </Route>
