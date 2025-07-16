@@ -10,7 +10,7 @@ export interface City {
 }
 
 export class CityService extends BaseApiService {
-  private endpoint = 'gestion/ciudades';
+  private endpoint = '/ciudades';
 
   async getAll(): Promise<City[]> {
     return this.get<City[]>(this.endpoint);
