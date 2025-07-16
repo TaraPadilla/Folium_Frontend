@@ -78,7 +78,8 @@ const GestionClientes = () => {
       if (clienteEditando) {
         await clientService.update(clienteEditando.id, {
           ...formData,
-          ciudad_id: Number(formData.ciudad_id)
+          ciudad_id: Number(formData.ciudad_id),
+          fecha_alta: formData.fecha_alta?.split('T')[0] || null
         });
         toast({
           title: "Cliente actualizado",
@@ -87,7 +88,8 @@ const GestionClientes = () => {
       } else {
         await clientService.create({
           ...formData,
-          ciudad_id: Number(formData.ciudad_id)
+          ciudad_id: Number(formData.ciudad_id),
+          fecha_alta: new Date().toISOString().split('T')[0] // <-- solo YYYY-MM-DD
         });
         toast({
           title: "Cliente registrado",
@@ -172,93 +174,79 @@ const GestionClientes = () => {
             </DialogHeader>
             
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label>Nombre</Label>
-                <Input
-                  value={formData.nombre}
-                  onChange={e => setFormData({ ...formData, nombre: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Dirección</Label>
-                <Input
-                  value={formData.direccion}
-                  onChange={e => setFormData({ ...formData, direccion: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Ciudad</Label>
-                <Select
-                  value={formData.ciudad_id}
-                  onValueChange={value => setFormData({ ...formData, ciudad_id: value })}
-                  required
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecciona ciudad" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ciudades.map((c) => (
-                      <SelectItem key={c.id} value={String(c.id)}>{c.ciudad}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Estado</Label>
-                <Select
-                  value={formData.estado}
-                  onValueChange={value => setFormData({ ...formData, estado: value })}
-                  required
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="prospecto">Prospecto</SelectItem>
-                    <SelectItem value="activo">Activo</SelectItem>
-                    <SelectItem value="baja">Baja</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Nombre contacto</Label>
-                <Input
-                  value={formData.nombre_contacto}
-                  onChange={e => setFormData({ ...formData, nombre_contacto: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Celular contacto</Label>
-                <Input
-                  value={formData.celular_contacto}
-                  onChange={e => setFormData({ ...formData, celular_contacto: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Correo contacto</Label>
-                <Input
-                  type="email"
-                  value={formData.correo_contacto}
-                  onChange={e => setFormData({ ...formData, correo_contacto: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Fecha alta</Label>
-                <Input
-                  type="date"
-                  value={formData.fecha_alta}
-                  onChange={e => setFormData({ ...formData, fecha_alta: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Fecha aceptación</Label>
-                <Input
-                  type="date"
-                  value={formData.fecha_aceptacion}
-                  onChange={e => setFormData({ ...formData, fecha_aceptacion: e.target.value })}
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Nombre</Label>
+                  <Input
+                    value={formData.nombre}
+                    onChange={e => setFormData({ ...formData, nombre: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Dirección</Label>
+                  <Input
+                    value={formData.direccion}
+                    onChange={e => setFormData({ ...formData, direccion: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Ciudad</Label>
+                  <Select
+                    value={formData.ciudad_id}
+                    onValueChange={value => setFormData({ ...formData, ciudad_id: value })}
+                    required
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecciona ciudad" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ciudades.map((c) => (
+                        <SelectItem key={c.id} value={String(c.id)}>{c.ciudad}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Estado</Label>
+                  <Select
+                    value={formData.estado}
+                    onValueChange={value => setFormData({ ...formData, estado: value })}
+                    required
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="prospecto">Prospecto</SelectItem>
+                      <SelectItem value="activo">Activo</SelectItem>
+                      <SelectItem value="baja">Baja</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Nombre contacto</Label>
+                  <Input
+                    value={formData.nombre_contacto}
+                    onChange={e => setFormData({ ...formData, nombre_contacto: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Celular contacto</Label>
+                  <Input
+                    value={formData.celular_contacto}
+                    onChange={e => setFormData({ ...formData, celular_contacto: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Correo contacto</Label>
+                  <Input
+                    type="email"
+                    value={formData.correo_contacto}
+                    onChange={e => setFormData({ ...formData, correo_contacto: e.target.value })}
+                  />
+                </div>
               </div>
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={() => { resetForm(); setIsDialogOpen(false); }}>Cancelar</Button>
