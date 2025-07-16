@@ -1,6 +1,7 @@
 import { View, Image, StyleSheet } from "@react-pdf/renderer";
 
-const logoURL = `${window.location.origin}/LogoFolium.jpg`;
+const logoURL = import.meta.env.VITE_IMAGE_URL + '/LogoFolium.jpg';
+console.log(logoURL);
 
 const styles = StyleSheet.create({
   page: {
@@ -29,7 +30,7 @@ const styles = StyleSheet.create({
 const Header: React.FC = () => (
     <>
       <View style={styles.arriba}>
-        <Image src={`${window.location.origin}/header_curvo.png`} style={styles.arriba} />
+        <Image src={`${import.meta.env.VITE_IMAGE_URL}/header_curvo.png`} style={styles.arriba} />
       </View>
       <View style={styles.header}>
         <Image src={logoURL} style={styles.logo} />

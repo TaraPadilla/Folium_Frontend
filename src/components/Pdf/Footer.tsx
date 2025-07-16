@@ -1,8 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image } from '@react-pdf/renderer';
 
+
 // Fondo amarillo decorativo (solo borde izquierdo)
-const backgroundURL = `${window.location.origin}/footer_bg_simple.png`;
+const backgroundURL = import.meta.env.VITE_IMAGE_URL + '/footer_bg_simple.png';
+const iconPhone = import.meta.env.VITE_IMAGE_URL + '/icons/phone.png';
+const iconWeb = import.meta.env.VITE_IMAGE_URL + '/icons/web.png';
+const iconEmail = import.meta.env.VITE_IMAGE_URL + '/icons/email.png';
+const iconLocation = import.meta.env.VITE_IMAGE_URL + '/icons/location.png';
 
 const styles = StyleSheet.create({
   container: {
@@ -52,11 +57,11 @@ const Footer: React.FC = () => (
     {/* Columna izquierda */}
     <View style={styles.column}>
       <View style={styles.row}>
-      <Image src={`${window.location.origin}/icons/phone.png`} style={styles.icon} />
+      <Image src={iconPhone} style={styles.icon} />
         <Text style={{marginTop: 10}}>095556790</Text>
       </View>
       <View style={styles.row}>
-      <Image src={`${window.location.origin}/icons/web.png`} style={styles.icon} />
+      <Image src={iconWeb} style={styles.icon} />
         <Text style={{marginTop: 10}}>www.folium.com.uy</Text>
       </View>
     </View>
@@ -64,11 +69,11 @@ const Footer: React.FC = () => (
     {/* Columna derecha */}
     <View style={styles.column}>
       <View style={styles.row}>
-      <Image src={`${window.location.origin}/icons/email.png`} style={styles.icon} />
+      <Image src={iconEmail} style={styles.icon} />
         <Text style={{marginTop: 10}}>info@folium.com.uy</Text>
       </View>
       <View style={styles.row}>
-      <Image src={`${window.location.origin}/icons/location.png`} style={styles.icon} />
+      <Image src={iconLocation} style={styles.icon} />
         <Text style={{marginTop: 10}}>Montevideo - Maldonado</Text>
       </View>
     </View>

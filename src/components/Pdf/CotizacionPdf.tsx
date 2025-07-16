@@ -34,8 +34,7 @@ interface Props {
 }
 
 // Placeholder logo (reemplazable)
-const logoURL = `${window.location.origin}/LogoFolium.jpg`;
-const firmaURL = `${window.location.origin}/firma.png`;
+const firmaURL = `${import.meta.env.VITE_IMAGE_URL}/firma.png`;
 
 const styles = StyleSheet.create({
   page: {
