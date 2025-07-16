@@ -52,7 +52,7 @@ const LoginForm = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="text-4xl mb-4">🌿</div>
-          <CardTitle className="text-2xl text-green-700">GardenCare Pro</CardTitle>
+          <CardTitle className="text-2xl text-green-700">Folium Paisajismo & Servicios</CardTitle>
           <CardDescription>
             Sistema de Gestión de Mantenimiento de Jardinería
           </CardDescription>

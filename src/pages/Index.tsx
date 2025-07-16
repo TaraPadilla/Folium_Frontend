@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import Login from '@/components/Login';
-import Navbar from '@/components/Layout/Navbar';
+import Navbar from '@/components/Layout/AppHeader';
 import Sidebar from '@/components/Layout/Sidebar';
 import Dashboard from '@/components/Dashboard/Dashboard';
 import GestionClientes from '@/components/Clientes/GestionClientes';
@@ -10,22 +10,18 @@ import HojaRuta from '@/components/HojaRuta/HojaRuta';
 import ProgramacionVisitas from '@/components/Visitas/ProgramacionVisitas';
 
 const Index = () => {
-  const { usuario, isLoading } = useAuth();
+  const { usuario } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
 
-  if (isLoading) {
+  if (!usuario) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-green-100">
         <div className="text-center">
           <div className="text-4xl mb-4">🌿</div>
-          <p className="text-gray-600">Cargando GardenCare Pro...</p>
+          <p className="text-gray-600">Cargando Folium Paisajismo & Servicios...</p>
         </div>
       </div>
     );
-  }
-
-  if (!usuario) {
-    return <Login />;
   }
 
   const renderContent = () => {

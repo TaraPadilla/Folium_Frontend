@@ -21,7 +21,7 @@ const AppHeader = () => {
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <h1 className="text-2xl font-bold text-green-700">
-                🌿 GardenCare Pro
+                🌿 Folium Paisajismo & Servicios
               </h1>
             </div>
           </div>
