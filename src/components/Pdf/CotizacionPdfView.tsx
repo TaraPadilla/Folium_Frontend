@@ -21,6 +21,8 @@ const CotizacionPdfView: React.FC = () => {
         .finally(() => setLoading(false));
     });
   }, [id]);
+  
+  console.log(import.meta.env.VITE_IMAGE_URL);
 
   return (
     <div className="w-full h-screen flex flex-col bg-gray-100">
