@@ -54,7 +54,7 @@ const LoginForm = () => {
           <div className="text-4xl mb-4">🌿</div>
           <CardTitle className="text-2xl text-green-700">Folium Paisajismo & Servicios</CardTitle>
           <CardDescription>
-            Sistema de Gestión de Mantenimiento de Jardinería
+            Sistema de Gestión de Mantenimiento de Jardinería Test
           </CardDescription>
         </CardHeader>
         <CardContent>
