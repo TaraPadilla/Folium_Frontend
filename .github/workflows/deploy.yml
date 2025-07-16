@@ -26,6 +26,10 @@ jobs:
             npm install
             npm run build
           
-            # Copiar solo lo esencial del build sin tocar index.php
+            # Borrar carpeta de assets solo si existe, para evitar mezcla de builds viejos
+            rm -rf ~/public_html/assets
+          
+            # Copiar build limpio
             cp -R dist/assets ~/public_html/assets
             cp dist/index.html ~/public_html/index.html
+
