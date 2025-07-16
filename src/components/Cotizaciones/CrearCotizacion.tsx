@@ -4,30 +4,14 @@ import { Button } from '@/components/ui/button';
 // Suponiendo que tienes un servicio para obtener los planes
 import type { PlanConTareas, Tarea } from './SeleccionarPlanConTareas';
 
-// Simulación de fetch de planes (reemplaza por llamada real a tu servicio)
+import { PlanMantenimientoService } from '@/services/api/PlanMantenimientoService';
+
+// Carga real de planes desde el backend
 const fetchPlanesMantenimiento = async (): Promise<PlanConTareas[]> => {
-  // Aquí deberías usar tu servicio real, esto es solo un mock
-  return [
-    {
-      id: 1,
-      nombre: 'MANTENIMIENTO BÁSICO CÉSPED',
-      descripcion: 'MANTENIMIENTO BÁSICO CÉSPED',
-      tareas: [
-        {
-          id: 2,
-          nombre: 'Bordeado',
-          plan_id: 1,
-          tipo: 'predefinida'
-        },
-        {
-          id: 3,
-          nombre: 'Soplado de caminos y veredas',
-          plan_id: 1,
-          tipo: 'predefinida'
-        }
-      ]
-    }
-  ];
+  const service = new PlanMantenimientoService();
+  const planes = await service.getAll();
+  // Por ahora, cada plan viene sin tareas; luego se deben asociar tareas reales por plan
+  return planes.map(plan => ({ ...plan, tareas: [] }));
 };
 
 const CrearCotizacion: React.FC = () => {
