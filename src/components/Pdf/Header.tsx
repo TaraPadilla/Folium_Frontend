@@ -1,6 +1,6 @@
 import { View, Image, StyleSheet } from "@react-pdf/renderer";
 
-const logoURL = import.meta.env.VITE_IMAGE_URL + '/LogoFolium.jpg';
+const logoURL = 'https://d72.0f3.mytemp.website/images/LogoFolium.jpg';
 
 const styles = StyleSheet.create({
   page: {
