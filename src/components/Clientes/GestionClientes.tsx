@@ -55,7 +55,9 @@ const GestionClientes = () => {
     celular_contacto: '',
     correo_contacto: '',
     fecha_alta: '',
-    fecha_aceptacion: ''
+    fecha_aceptacion: '',
+    link_ubicacion: '',
+    observaciones: ''
   });
 
   const resetForm = () => {
@@ -68,7 +70,9 @@ const GestionClientes = () => {
       celular_contacto: '',
       correo_contacto: '',
       fecha_alta: '',
-      fecha_aceptacion: ''
+      fecha_aceptacion: '',
+      link_ubicacion: '',
+      observaciones: ''
     });
     setClienteEditando(null);
   };
@@ -80,7 +84,8 @@ const GestionClientes = () => {
         await clientService.update(clienteEditando.id, {
           ...formData,
           ciudad_id: Number(formData.ciudad_id),
-          fecha_alta: formData.fecha_alta?.split('T')[0] || null
+          fecha_alta: formData.fecha_alta?.split('T')[0] || null,
+          link_ubicacion: formData.link_ubicacion?.trim() || null
         });
         toast({
           title: "Cliente actualizado",
@@ -90,7 +95,8 @@ const GestionClientes = () => {
         await clientService.create({
           ...formData,
           ciudad_id: Number(formData.ciudad_id),
-          fecha_alta: new Date().toISOString().split('T')[0] // <-- solo YYYY-MM-DD
+          fecha_alta: new Date().toISOString().split('T')[0], // <-- solo YYYY-MM-DD
+          link_ubicacion: formData.link_ubicacion?.trim() || null
         });
         toast({
           title: "Cliente registrado",
@@ -118,7 +124,9 @@ const GestionClientes = () => {
       celular_contacto: cliente.celular_contacto,
       correo_contacto: cliente.correo_contacto,
       fecha_alta: cliente.fecha_alta || '',
-      fecha_aceptacion: cliente.fecha_aceptacion || ''
+      fecha_aceptacion: cliente.fecha_aceptacion || '',
+      link_ubicacion: cliente.link_ubicacion || '',
+      observaciones: cliente.observaciones || ''
     });
     setIsDialogOpen(true);
   };
@@ -249,6 +257,24 @@ const GestionClientes = () => {
                   />
                 </div>
               </div>
+              <div className="space-y-2">
+                <Label>Link ubicación</Label>
+                <Input
+                  type="url"
+                  placeholder="https://maps.google.com/..."
+                  value={formData.link_ubicacion}
+                  onChange={e => setFormData({ ...formData, link_ubicacion: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Observaciones</Label>
+                <Textarea
+                  placeholder="Observaciones internas, notas, etc."
+                  value={formData.observaciones}
+                  onChange={e => setFormData({ ...formData, observaciones: e.target.value })}
+                  rows={2}
+                />
+              </div>
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={() => { resetForm(); setIsDialogOpen(false); }}>Cancelar</Button>
                 <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white">
@@ -373,6 +399,16 @@ const GestionClientes = () => {
                     <span><strong>Fecha alta:</strong> {cliente.fecha_alta || '—'}</span>
                     <span><strong>Fecha aceptación:</strong> {cliente.fecha_aceptacion || '—'}</span>
                   </div>
+                  {cliente.link_ubicacion && (
+                    <div className="flex flex-wrap gap-x-6 gap-y-1">
+                      <span><strong>Ubicación:</strong> <a href={cliente.link_ubicacion} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Ver ubicación</a></span>
+                    </div>
+                  )}
+                  {cliente.observaciones && (
+                    <div className="flex flex-wrap gap-x-6 gap-y-1">
+                      <span><strong>Observaciones:</strong> {cliente.observaciones}</span>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -392,6 +428,8 @@ const GestionClientes = () => {
                 <th className="px-3 py-2 border">Correo</th>
                 <th className="px-3 py-2 border">Fecha alta</th>
                 <th className="px-3 py-2 border">Fecha aceptación</th>
+                <th className="px-3 py-2 border">Ubicación</th>
+                <th className="px-3 py-2 border">Observaciones</th>
                 <th className="px-3 py-2 border">Acciones</th>
               </tr>
             </thead>
@@ -409,6 +447,12 @@ const GestionClientes = () => {
                   <td className="px-3 py-2 border">{cliente.correo_contacto || '—'}</td>
                   <td className="px-3 py-2 border">{cliente.fecha_alta || '—'}</td>
                   <td className="px-3 py-2 border">{cliente.fecha_aceptacion || '—'}</td>
+                  <td className="px-3 py-2 border">
+                    {cliente.link_ubicacion ? (
+                      <a href={cliente.link_ubicacion} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Ver ubicación</a>
+                    ) : '—'}
+                  </td>
+                  <td className="px-3 py-2 border">{cliente.observaciones || '—'}</td>
                   <td className="px-3 py-2 border flex gap-1">
                     <Button
                       variant="ghost"

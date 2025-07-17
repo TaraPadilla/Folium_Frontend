@@ -11,6 +11,8 @@ export interface Client {
   correo_contacto: string;
   fecha_alta: string;
   fecha_aceptacion: string;
+  link_ubicacion?: string | null;
+  observaciones?: string | null;
   createdAt: string | null;
   updatedAt: string | null;
   deletedAt: string | null;
