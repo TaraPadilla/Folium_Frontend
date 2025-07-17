@@ -2,6 +2,7 @@ import { BaseApiService } from './BaseApiService';
 
 export interface Cotizacion {
   id: number;
+  cliente: any;
   cliente_id: number;
   fecha_creacion: string;
   ruta_pdf: string;
@@ -34,5 +35,9 @@ export class CotizacionService extends BaseApiService {
 
   async remove(id: number): Promise<void> {
     return this.delete<void>(`${this.endpoint}/${id}`);
+  }
+
+  async actualizarEstado(id: number, estado: string): Promise<Cotizacion> {
+    return this.put<Cotizacion>(`${this.endpoint}/actualizarestado`, { id, estado });
   }
 }

@@ -73,7 +73,7 @@ const PlanesTab: React.FC = () => {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Planes de Mantenimiento</CardTitle>
+        <CardTitle>Tipo de Servicio</CardTitle>
         <Button
           onClick={() => {
             setForm({ ...defaultForm });

@@ -3,7 +3,7 @@ import { PlanSeleccionadoService } from '@/services/api/PlanSeleccionadoService'
 import { PlanTareaSeleccionadaService } from '@/services/api/PlanTareaSeleccionadaService';
 import { Button } from '@/components/ui/button';
 
-// Asumimos que ya existe un servicio para planes de mantenimiento:
+// Asumimos que ya existe un servicio para Tipo de Servicio:
 import { PlanMantenimiento } from '@/services/api/PlanMantenimientoService';
 
 export interface Tarea {

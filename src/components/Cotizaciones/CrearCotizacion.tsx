@@ -26,6 +26,7 @@ import SeleccionarClienteDialog from './SeleccionarClienteDialog';
 import { Client } from '@/services/api/ClientService';
 
 import { NegocioService } from '@/services/api/NegocioService';
+import { useNavigate } from 'react-router-dom';
 
 const CrearCotizacion: React.FC = () => {
   const [planes, setPlanes] = useState<PlanConTareas[]>([]);
@@ -120,7 +121,7 @@ const CrearCotizacion: React.FC = () => {
       {/* Paso 3: Guardar cotización, solo si hay cliente */}
       {clienteSeleccionado && (
         <div className="mt-6 flex gap-4">
-          <Button variant="outline" onClick={() => setMostrarPreview(true)}>Previsualizar PDF</Button>
+          <Button variant="outline" onClick={() => setMostrarPreview(true)}>Previsualizar</Button>
           <Button
             variant="default"
             onClick={handleGuardarCotizacion}
@@ -133,8 +134,8 @@ const CrearCotizacion: React.FC = () => {
       {/* Modal de previsualización PDF */}
       {mostrarPreview && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
-          <div className="bg-white p-8 rounded shadow-lg max-w-2xl w-full relative">
-            <h3 className="text-xl font-bold mb-4">Previsualización de Cotización (PDF)</h3>
+          <div className="bg-white p-8 rounded shadow-lg max-w-2xl w-full relative overflow-y-auto max-h-[90vh]">
+            <h3 className="text-xl font-bold mb-4">Previsualización de Cotización</h3>
             <div className="mb-4">
               <div className="mb-2"><b>Cliente:</b> {clienteSeleccionado?.nombre}</div>
               <div className="mb-2"><b>Dirección:</b> {clienteSeleccionado?.direccion}</div>

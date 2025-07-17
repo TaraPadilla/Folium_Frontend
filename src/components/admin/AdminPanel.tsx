@@ -56,7 +56,7 @@ const AdminPanel: React.FC = () => {
       <Tabs defaultValue="cities">
         <TabsList className="flex flex-wrap gap-2 mb-6">
           <TabsTrigger value="cities">Ciudades</TabsTrigger>
-          <TabsTrigger value="planes">Planes de Mantenimiento</TabsTrigger>
+          <TabsTrigger value="planes">Tipo de Servicio</TabsTrigger>
           <TabsTrigger value="tareas">Tareas</TabsTrigger>
         </TabsList>
 
