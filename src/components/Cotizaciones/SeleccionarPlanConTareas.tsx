@@ -108,8 +108,8 @@ const SeleccionarPlanConTareas: React.FC<SeleccionarPlanConTareasProps> = ({ pla
             <thead>
               <tr className="bg-green-100">
                 <th className="px-4 py-2 border">Nombre de la tarea</th>
-                <th className="px-4 py-2 border">Incluida</th>
-                <th className="px-4 py-2 border">Visible para encargado</th>
+                <th className="px-4 py-2 border">Incluir en cotización  </th>
+                {/* <th className="px-4 py-2 border">Visible para encargado</th> */}
                 <th className="px-4 py-2 border">Acción</th>
               </tr>
             </thead>
@@ -124,13 +124,13 @@ const SeleccionarPlanConTareas: React.FC<SeleccionarPlanConTareasProps> = ({ pla
                       onChange={e => handleCheckboxChange(tarea.id, 'incluida', e.target.checked)}
                     />
                   </td>
-                  <td className="px-4 py-2 border text-center">
+                  {/* <td className="px-4 py-2 border text-center">
                     <input
                       type="checkbox"
                       checked={tarea.visible_para_encargado ?? true}
                       onChange={e => handleCheckboxChange(tarea.id, 'visible_para_encargado', e.target.checked)}
                     />
-                  </td>
+                  </td> */}
                   <td className="px-4 py-2 border text-center">
                     <Button variant="destructive" size="sm" onClick={() => handleEliminarTarea(tarea.id)}>Eliminar</Button>
                   </td>
@@ -165,7 +165,7 @@ const SeleccionarPlanConTareas: React.FC<SeleccionarPlanConTareasProps> = ({ pla
                   <tr className="bg-green-50">
                     <th className="px-4 py-2 border">Tarea</th>
                     <th className="px-4 py-2 border">Incluida</th>
-                    <th className="px-4 py-2 border">Visible para encargado</th>
+                    {/* <th className="px-4 py-2 border">Visible para encargado</th> */}
                   </tr>
                 </thead>
                 <tbody>
@@ -173,7 +173,7 @@ const SeleccionarPlanConTareas: React.FC<SeleccionarPlanConTareasProps> = ({ pla
                     <tr key={tarea.id}>
                       <td className="px-4 py-2 border">{tarea.nombre}</td>
                       <td className="px-4 py-2 border text-center">{tarea.incluida ? 'Sí' : 'No'}</td>
-                      <td className="px-4 py-2 border text-center">{tarea.visible_para_encargado ? 'Sí' : 'No'}</td>
+                      {/* <td className="px-4 py-2 border text-center">{tarea.visible_para_encargado ? 'Sí' : 'No'}</td> */}
                     </tr>
                   ))}
                 </tbody>

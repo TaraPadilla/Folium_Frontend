@@ -235,22 +235,24 @@ const CotizacionesList: React.FC = () => {
           <NuevaCotizacionButton />
         </div>
       </div>
-      <table className="min-w-full table-auto border">
-        <thead>
-          <tr className="bg-green-100">
-            <th className="px-4 py-2 border">Nro</th>
-            <th className="px-4 py-2 border">Cliente</th>
-            <th className="px-4 py-2 border">Estado</th>
-            <th className="px-4 py-2 border">Fecha Envío</th>
-            <th className="px-4 py-2 border">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {cotizacionesFiltradas.map(c => (
-            <CotizacionRow key={c.id} cotizacion={c} />
-          ))}
-        </tbody>
-      </table>
+      <div style={{ overflowX: 'auto', maxHeight: 600 }} className="w-full">
+        <table className="min-w-full table-auto border">
+          <thead>
+            <tr className="bg-green-100">
+              <th className="px-4 py-2 border">Nro</th>
+              <th className="px-4 py-2 border">Cliente</th>
+              <th className="px-4 py-2 border">Estado</th>
+              <th className="px-4 py-2 border">Fecha Envío</th>
+              <th className="px-4 py-2 border">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {cotizacionesFiltradas.map(c => (
+              <CotizacionRow key={c.id} cotizacion={c} />
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

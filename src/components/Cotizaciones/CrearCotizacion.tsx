@@ -29,6 +29,7 @@ import { NegocioService } from '@/services/api/NegocioService';
 import { useNavigate } from 'react-router-dom';
 
 const CrearCotizacion: React.FC = () => {
+  const navigate = useNavigate();
   const [planes, setPlanes] = useState<PlanConTareas[]>([]);
   const [planSeleccionado, setPlanSeleccionado] = useState<PlanConTareas | null>(null);
   const [clienteSeleccionado, setClienteSeleccionado] = useState<Client | null>(null);
@@ -56,7 +57,7 @@ const CrearCotizacion: React.FC = () => {
       } as any;
       const cotizacionId = await negocioService.guardarCotizacionConPlanesYtareas(cotizacion, planesAgregados);
       alert('Cotización guardada exitosamente con id: ' + cotizacionId);
-      // Opcional: limpiar estados o navegar
+      navigate('/cotizaciones'); // Redirige al listado de cotizaciones
     } catch (e) {
       alert('Error al guardar la cotización');
     } finally {
