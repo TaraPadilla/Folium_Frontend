@@ -148,7 +148,7 @@ const CotizacionRow: React.FC<CotizacionRowProps> = ({ cotizacion }) => {
                               <tr className="bg-green-50">
                                 <th className="px-2 py-1 border">Tarea</th>
                                 <th className="px-2 py-1 border">Incluida</th>
-                                <th className="px-2 py-1 border">Visible para encargado</th>
+                                <th className="px-2 py-1 border">Observaciones</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -156,7 +156,7 @@ const CotizacionRow: React.FC<CotizacionRowProps> = ({ cotizacion }) => {
                                 <tr key={tarea.id}>
                                   <td className="px-2 py-1 border">{tarea.tarea?.nombre || tarea.nombre || tarea.tarea_nombre}</td>
                                   <td className="px-2 py-1 border text-center">{tarea.incluida ? 'Sí' : 'No'}</td>
-                                  <td className="px-2 py-1 border text-center">{tarea.visible_para_encargado ? 'Sí' : 'No'}</td>
+                                  <td className="px-2 py-1 border text-center">{tarea.observaciones || ''}</td>
                                 </tr>
                               ))}
                             </tbody>

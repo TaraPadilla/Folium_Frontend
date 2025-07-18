@@ -44,6 +44,7 @@ export class NegocioService {
           tarea_id: tarea.id,
           incluida: tarea.incluida,
           visible_para_encargado: tarea.visible_para_encargado,
+          observaciones: tarea.observaciones ?? null,
         });
       }
     }

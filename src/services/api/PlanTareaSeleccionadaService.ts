@@ -6,6 +6,7 @@ export interface PlanTareaSeleccionada {
   tarea_id: number;
   incluida: boolean;
   visible_para_encargado: boolean;
+  observaciones?: string | null;
   createdAt?: string | null;
   updatedAt?: string | null;
   deletedAt?: string | null;

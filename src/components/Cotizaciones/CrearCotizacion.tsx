@@ -154,7 +154,7 @@ const CrearCotizacion: React.FC = () => {
                           <tr className="bg-green-50">
                             <th className="px-2 py-1 border">Tarea</th>
                             <th className="px-2 py-1 border">Incluida</th>
-                            <th className="px-2 py-1 border">Visible para encargado</th>
+                            <th className="px-2 py-1 border">Observaciones</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -162,7 +162,7 @@ const CrearCotizacion: React.FC = () => {
                             <tr key={tarea.id}>
                               <td className="px-2 py-1 border">{tarea.nombre}</td>
                               <td className="px-2 py-1 border text-center">{tarea.incluida ? 'Sí' : 'No'}</td>
-                              <td className="px-2 py-1 border text-center">{tarea.visible_para_encargado ? 'Sí' : 'No'}</td>
+                              <td className="px-2 py-1 border">{tarea.observaciones ?? ''}</td>
                             </tr>
                           ))}
                         </tbody>

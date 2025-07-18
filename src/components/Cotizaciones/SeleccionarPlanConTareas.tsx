@@ -16,6 +16,7 @@ export interface Tarea {
   deleted_at?: string | null;
   incluida?: boolean;
   visible_para_encargado?: boolean;
+  observaciones?: string | null; // NUEVO
 }
 
 export interface PlanConTareas extends Omit<PlanMantenimiento, 'createdAt' | 'updatedAt' | 'deletedAt'> {
@@ -86,6 +87,11 @@ const SeleccionarPlanConTareas: React.FC<SeleccionarPlanConTareasProps> = ({ pla
     p => !planesAgregados.some(pa => pa.plan.id === p.id)
   );
 
+  // Nuevo: handler para observaciones
+  const handleObservacionesChange = (tareaId: number, value: string) => {
+    setTareas(prev => prev.map(t => t.id === tareaId ? { ...t, observaciones: value } : t));
+  };
+
   return (
     <div>
       <div className="mb-4">
@@ -109,6 +115,7 @@ const SeleccionarPlanConTareas: React.FC<SeleccionarPlanConTareasProps> = ({ pla
               <tr className="bg-green-100">
                 <th className="px-4 py-2 border">Nombre de la tarea</th>
                 <th className="px-4 py-2 border">Incluir en cotización  </th>
+                <th className="px-4 py-2 border">Observaciones</th>
                 {/* <th className="px-4 py-2 border">Visible para encargado</th> */}
                 <th className="px-4 py-2 border">Acción</th>
               </tr>
@@ -122,6 +129,16 @@ const SeleccionarPlanConTareas: React.FC<SeleccionarPlanConTareasProps> = ({ pla
                       type="checkbox"
                       checked={tarea.incluida ?? true}
                       onChange={e => handleCheckboxChange(tarea.id, 'incluida', e.target.checked)}
+                    />
+                  </td>
+                  <td className="px-4 py-2 border">
+                    <input
+                      type="text"
+                      className="border p-1 rounded w-full"
+                      value={tarea.observaciones ?? ''}
+                      onChange={e => handleObservacionesChange(tarea.id, e.target.value)}
+                      placeholder="Observaciones"
+                      name={`observaciones-${tarea.id}`}
                     />
                   </td>
                   {/* <td className="px-4 py-2 border text-center">
@@ -165,6 +182,7 @@ const SeleccionarPlanConTareas: React.FC<SeleccionarPlanConTareasProps> = ({ pla
                   <tr className="bg-green-50">
                     <th className="px-4 py-2 border">Tarea</th>
                     <th className="px-4 py-2 border">Incluida</th>
+                    <th className="px-4 py-2 border">Observaciones</th>
                     {/* <th className="px-4 py-2 border">Visible para encargado</th> */}
                   </tr>
                 </thead>
@@ -173,6 +191,7 @@ const SeleccionarPlanConTareas: React.FC<SeleccionarPlanConTareasProps> = ({ pla
                     <tr key={tarea.id}>
                       <td className="px-4 py-2 border">{tarea.nombre}</td>
                       <td className="px-4 py-2 border text-center">{tarea.incluida ? 'Sí' : 'No'}</td>
+                      <td className="px-4 py-2 border">{tarea.observaciones ?? ''}</td>
                       {/* <td className="px-4 py-2 border text-center">{tarea.visible_para_encargado ? 'Sí' : 'No'}</td> */}
                     </tr>
                   ))}
