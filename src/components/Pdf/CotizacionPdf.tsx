@@ -13,6 +13,7 @@ interface TareaSeleccionada {
   id: number;
   tarea_id: number;
   incluida: boolean | number;
+  observaciones?: string;
   tarea?: { nombre?: string };
   nombre?: string;
   tarea_nombre?: string;
@@ -85,6 +86,25 @@ const styles = StyleSheet.create({
     marginTop: -25,
     marginLeft: -25,
   },  
+  planTitulo: {
+    backgroundColor: '#d1fae5', // verde suave
+    color: '#065f46',           // verde institucional oscuro
+    padding: 4,
+    fontWeight: 'bold',
+    fontSize: 11,
+    marginTop: 10,
+  },
+  tareaItem: {
+    marginLeft: 10,
+    fontSize: 11,
+    marginBottom: 2,
+  },
+  observacion: {
+    marginLeft: 14,
+    fontSize: 10,
+    fontStyle: 'italic',
+    color: '#4b5563',
+  },
 });
 
 export const CotizacionPdf: React.FC<Props> = ({
@@ -137,23 +157,58 @@ export const CotizacionPdf: React.FC<Props> = ({
           Tenemos el agrado de presentar la siguiente cotización, la cual incluye los puntos que se detallan a continuación:
         </Text>
 
-        {/* Tareas incluidas */}
-        {tareasIncluidas.map((nombre, i) => (
-          <Text key={i} style={styles.tarea}>{nombre}</Text>
-        ))}
+        {/* Tareas incluidas por plan */}
+        {planes_seleccionados.map((plan, i) => {
+          const incluidas = plan.tareas_seleccionadas.filter(t => t.incluida);
+          if (incluidas.length === 0) return null;
+
+          return (
+            <View key={`incluidas-${i}`} style={{ marginTop: 10 }}>
+              <Text style={styles.tarea}>{plan.plan.nombre}</Text>
+              {incluidas.map((t, j) => {
+                const nombre = t.tarea?.nombre || t.nombre || t.tarea_nombre || `Tarea #${t.tarea_id}`;
+                return (
+                  <View key={j} style={styles.filaTarea}>
+                    <Text>{nombre}</Text>
+                    {t.observaciones?.trim() && (
+                      <Text style={styles.observacion}>Obs: {t.observaciones}</Text>
+                    )}
+                  </View>
+                );
+              })}
+            </View>
+          );
+        })}
 
         {/* Exclusiones */}
-        {tareasExcluidas.length > 0 && (
+        {planes_seleccionados.some(plan => plan.tareas_seleccionadas.some(t => !t.incluida)) && (
           <>
             <Text style={{ marginTop: 12, marginBottom: 10 }}>
               Los siguientes puntos no están incluidos en la presente cotización y, en caso de requerirse, deberán ser coordinados y presupuestados por separado:
             </Text>
-            {tareasExcluidas.map((nombre, i) => (
-              <Text key={i} style={styles.tarea}>{nombre}</Text>
-            ))}
+            {planes_seleccionados.map((plan, i) => {
+              const excluidas = plan.tareas_seleccionadas.filter(t => !t.incluida);
+              if (excluidas.length === 0) return null;
+
+              return (
+                <View key={`excluidas-${i}`} style={{ marginTop: 10 }}>
+                  <Text style={styles.tarea}>{plan.plan.nombre}</Text>
+                  {excluidas.map((t, j) => {
+                    const nombre = t.tarea?.nombre || t.nombre || t.tarea_nombre || `Tarea #${t.tarea_id}`;
+                    return (
+                      <View key={j} style={styles.filaTarea}>
+                        <Text>{nombre}</Text>
+                        {t.observaciones?.trim() && (
+                          <Text style={styles.observacion}>Obs: {t.observaciones}</Text>
+                        )}
+                      </View>
+                    );
+                  })}
+                </View>
+              );
+            })}
           </>
         )}
-
         {/* Aviso EPP */}
         <Text style={{ marginTop: 12 }}>
           Todo el personal asignado pertenece a nuestra empresa, se encuentra debidamente uniformado, con aportes al día y equipado con los elementos de protección personal (EPP) correspondientes, según las normativas vigentes.

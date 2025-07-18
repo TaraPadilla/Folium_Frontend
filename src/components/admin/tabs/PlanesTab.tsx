@@ -116,12 +116,12 @@ const PlanesTab: React.FC = () => {
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{form.id ? "Editar plan" : "Nuevo plan de mantenimiento"}</DialogTitle>
+            <DialogTitle>{form.id ? "Editar Presupuesto" : "Nuevo Presupuesto"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 mt-2">
             <Input
               name="nombre"
-              placeholder="Nombre del plan"
+              placeholder="Nombre del presupuesto"
               value={form.nombre}
               onChange={(e) => setForm((prev) => ({ ...prev, nombre: e.target.value }))}
               required
