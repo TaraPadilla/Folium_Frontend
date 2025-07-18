@@ -17,7 +17,7 @@ const CotizacionPdfView: React.FC = () => {
       const service = new mod.CotizacionService();
       service.getById(Number(id))
         .then(setData)
-        .catch(() => setError('No se pudo cargar la cotización.'))
+        .catch(() => setError('No se pudo cargar el presupuesto.'))
         .finally(() => setLoading(false));
     });
   }, [id]);
@@ -33,7 +33,7 @@ const CotizacionPdfView: React.FC = () => {
         >
           ← Volver al listado
         </button>
-        <span className="text-lg font-bold">Vista previa PDF Cotización #{id}</span>
+        <span className="text-lg font-bold">Vista previa PDF Presupuesto #{id}</span>
       </div>
       <div className="flex-1 flex justify-center items-center bg-gray-100">
         {loading && <div>Cargando PDF...</div>}

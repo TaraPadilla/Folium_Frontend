@@ -56,10 +56,10 @@ const CrearCotizacion: React.FC = () => {
         // Agrega aquí otros campos requeridos por Cotizacion (ejemplo: fecha, descripcion, etc.)
       } as any;
       const cotizacionId = await negocioService.guardarCotizacionConPlanesYtareas(cotizacion, planesAgregados);
-      alert('Cotización guardada exitosamente con id: ' + cotizacionId);
+      alert(' Presupuesto guardado exitosamente con id: ' + cotizacionId);
       navigate('/cotizaciones'); // Redirige al listado de cotizaciones
     } catch (e) {
-      alert('Error al guardar la cotización');
+      alert('Error al guardar el presupuesto');
     } finally {
       setGuardandoCotizacion(false);
     }
@@ -72,7 +72,7 @@ const CrearCotizacion: React.FC = () => {
 
   return (
     <div className="bg-white p-6 rounded shadow max-w-3xl mx-auto mt-10">
-      <h2 className="text-2xl font-bold mb-4">Crear Nueva Cotización</h2>
+      <h2 className="text-2xl font-bold mb-4">Crear Nuevo Presupuesto</h2>
       {/* Paso 1: Selección de cliente */}
       <SeleccionarClienteDialog
         clienteSeleccionado={clienteSeleccionado}
@@ -97,7 +97,7 @@ const CrearCotizacion: React.FC = () => {
             <textarea
               id="consideraciones"
               className="w-full border rounded px-3 py-2 min-h-[60px]"
-              placeholder="Escribe aquí cualquier consideración relevante para la cotización..."
+              placeholder="Escribe aquí cualquier consideración relevante para el presupuesto..."
               value={consideraciones}
               onChange={e => setConsideraciones(e.target.value)}
             />
@@ -119,7 +119,7 @@ const CrearCotizacion: React.FC = () => {
           />
         </>
       )}
-      {/* Paso 3: Guardar cotización, solo si hay cliente */}
+      {/* Paso 3: Guardar  presupuesto, solo si hay cliente */}
       {clienteSeleccionado && (
         <div className="mt-6 flex gap-4">
           <Button variant="outline" onClick={() => setMostrarPreview(true)}>Previsualizar</Button>
@@ -128,7 +128,7 @@ const CrearCotizacion: React.FC = () => {
             onClick={handleGuardarCotizacion}
             disabled={guardandoCotizacion}
           >
-            {guardandoCotizacion ? 'Guardando...' : 'Guardar Cotización'}
+            {guardandoCotizacion ? 'Guardando...' : 'Guardar Presupuesto'}
           </Button>
         </div>
       )}
@@ -136,7 +136,7 @@ const CrearCotizacion: React.FC = () => {
       {mostrarPreview && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
           <div className="bg-white p-8 rounded shadow-lg max-w-2xl w-full relative overflow-y-auto max-h-[90vh]">
-            <h3 className="text-xl font-bold mb-4">Previsualización de Cotización</h3>
+            <h3 className="text-xl font-bold mb-4">Previsualización de Presupuesto</h3>
             <div className="mb-4">
               <div className="mb-2"><b>Cliente:</b> {clienteSeleccionado?.nombre}</div>
               <div className="mb-2"><b>Dirección:</b> {clienteSeleccionado?.direccion}</div>

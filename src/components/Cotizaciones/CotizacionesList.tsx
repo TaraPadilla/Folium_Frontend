@@ -19,12 +19,12 @@ const CotizacionRow: React.FC<CotizacionRowProps> = ({ cotizacion }) => {
     setLoadingPdf(true);
     setShowLink(false);
     try {
-      // Llama al servicio de cotizaciones para obtener la cotización completa getById
+      // Llama al servicio de cotizaciones para obtener el presupuesto completo getById
       const cotizacionCompleta = await cotizacionService.getById(cotizacion.id);
       setPdfData(cotizacionCompleta);
       setShowLink(true);
     } catch (e) {
-      alert('No se pudo obtener la cotización completa');
+      alert('No se pudo obtener el presupuesto completo');
     } finally {
       setLoadingPdf(false);
     }
@@ -69,7 +69,7 @@ const CotizacionRow: React.FC<CotizacionRowProps> = ({ cotizacion }) => {
             onChange={async (e) => {
               const nuevoEstado = e.target.value;
               if (nuevoEstado === estado) return;
-              if (window.confirm(`¿Seguro que quieres cambiar el estado de la cotización a "${nuevoEstado.charAt(0).toUpperCase() + nuevoEstado.slice(1)}"?`)) {
+              if (window.confirm(`¿Seguro que quieres cambiar el estado del presupuesto a "${nuevoEstado.charAt(0).toUpperCase() + nuevoEstado.slice(1)}"?`)) {
                 try {
                   await cotizacionService.actualizarEstado(cotizacion.id, nuevoEstado);
                   // Si tienes un método para recargar la lista, llama aquí. Si no, actualiza el estado localmente:
@@ -127,7 +127,7 @@ const CotizacionRow: React.FC<CotizacionRowProps> = ({ cotizacion }) => {
               onClick={() => setShowPreview(false)}
               aria-label="Cerrar"
             >×</button>
-            <h3 className="text-xl font-bold mb-4">Previsualización de Cotización #{cotizacion.id}</h3>
+            <h3 className="text-xl font-bold mb-4">Previsualización de Presupuesto #{cotizacion.id}</h3>
             {loadingPreview && <div>Cargando...</div>}
             {!loadingPreview && cotizacionCompleta && (
               <div>
@@ -264,7 +264,7 @@ const NuevaCotizacionButton: React.FC = () => {
       className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded shadow"
       onClick={() => navigate('/cotizaciones/nueva')}
     >
-      Nueva Cotización
+      Nueva Presupuesto
     </button>
   );
 };

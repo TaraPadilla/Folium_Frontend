@@ -114,7 +114,7 @@ const SeleccionarPlanConTareas: React.FC<SeleccionarPlanConTareasProps> = ({ pla
             <thead>
               <tr className="bg-green-100">
                 <th className="px-4 py-2 border">Nombre de la tarea</th>
-                <th className="px-4 py-2 border">Incluir en cotización  </th>
+                <th className="px-4 py-2 border">Incluir en presupuesto  </th>
                 <th className="px-4 py-2 border">Observaciones</th>
                 {/* <th className="px-4 py-2 border">Visible para encargado</th> */}
                 <th className="px-4 py-2 border">Acción</th>

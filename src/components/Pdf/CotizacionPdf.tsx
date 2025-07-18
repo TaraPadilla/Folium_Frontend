@@ -172,7 +172,6 @@ export const CotizacionPdf: React.FC<Props> = ({
         )}
 
         {/* Aviso EPP */}
-        <view style={styles.page}>
         <Text style={{ marginTop: 12 }}>
           Todo el personal asignado pertenece a nuestra empresa, se encuentra debidamente uniformado, con aportes al día y equipado con los elementos de protección personal (EPP) correspondientes, según las normativas vigentes.
         </Text>
@@ -184,7 +183,6 @@ export const CotizacionPdf: React.FC<Props> = ({
             <Text>{consideraciones}</Text>
           </>
         )}
-        </view>
 
         {/* Propuesta económica */}
         {propuesta_economica?.trim() && (
