@@ -34,7 +34,7 @@ interface Props {
   fecha_creacion?: string;
 }
 
-// Placeholder logo (reemplazable)
+// Placeholder logo
 const firmaURL = `${import.meta.env.VITE_IMAGE_URL}/firma.png`;
 
 const styles = StyleSheet.create({
@@ -43,15 +43,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontFamily: 'Helvetica',
     lineHeight: 1.5,
-  },
-  header: {
-    width: '100%',
-    height: 100,
-  },
-  logo: {
-    width: 120,
-    height: 120,
-    marginLeft: 350,
   },
   fieldBlock: { marginBottom: 8 },
   tituloPrincipal: {
@@ -66,29 +57,9 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     textDecoration: 'underline',
   },
-  tarea: {
-    fontWeight: 'bold',
-    marginBottom: 2,
-  },
-  firma: {
-    width: 100,
-    height: 40,
-    marginBottom: 4,
-  },
-  bloqueFirma: {
-    marginTop: 40,
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-  },
-  arriba: {
-    width: 595.28, // ancho exacto de A4
-    height: 100,
-    marginTop: -25,
-    marginLeft: -25,
-  },  
   planTitulo: {
     backgroundColor: '#d1fae5', // verde suave
-    color: '#065f46',           // verde institucional oscuro
+    color: '#065f46',           // verde oscuro
     padding: 4,
     fontWeight: 'bold',
     fontSize: 11,
@@ -105,6 +76,16 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     color: '#4b5563',
   },
+  firma: {
+    width: 100,
+    height: 40,
+    marginBottom: 4,
+  },
+  bloqueFirma: {
+    marginTop: 40,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+  },
 });
 
 export const CotizacionPdf: React.FC<Props> = ({
@@ -115,26 +96,6 @@ export const CotizacionPdf: React.FC<Props> = ({
   id,
   fecha_creacion,
 }) => {
-  const tareasIncluidas: string[] = [];
-  const tareasExcluidas: string[] = [];
-  const idsIncluidas = new Set<number>();
-
-  planes_seleccionados.forEach((plan) => {
-    plan.tareas_seleccionadas.forEach((t) => {
-      const nombre = t.tarea?.nombre || t.nombre || t.tarea_nombre || `Tarea #${t.tarea_id}`;
-      if (t.incluida) {
-        if (!idsIncluidas.has(t.tarea_id)) {
-          tareasIncluidas.push(nombre);
-          idsIncluidas.add(t.tarea_id);
-        }
-      } else {
-        if (!idsIncluidas.has(t.tarea_id)) {
-          tareasExcluidas.push(nombre);
-        }
-      }
-    });
-  });
-
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -157,19 +118,19 @@ export const CotizacionPdf: React.FC<Props> = ({
           Tenemos el agrado de presentar la siguiente cotización, la cual incluye los puntos que se detallan a continuación:
         </Text>
 
-        {/* Tareas incluidas por plan */}
+        {/* Tareas incluidas */}
         {planes_seleccionados.map((plan, i) => {
           const incluidas = plan.tareas_seleccionadas.filter(t => t.incluida);
           if (incluidas.length === 0) return null;
 
           return (
-            <View key={`incluidas-${i}`} style={{ marginTop: 10 }}>
-              <Text style={styles.tarea}>{plan.plan.nombre}</Text>
+            <View key={`incluidas-${i}`} wrap={false}>
+              <Text style={styles.planTitulo}>{plan.plan.nombre}</Text>
               {incluidas.map((t, j) => {
                 const nombre = t.tarea?.nombre || t.nombre || t.tarea_nombre || `Tarea #${t.tarea_id}`;
                 return (
-                  <View key={j} style={styles.filaTarea}>
-                    <Text>{nombre}</Text>
+                  <View key={j}>
+                    <Text style={styles.tareaItem}>{nombre}</Text>
                     {t.observaciones?.trim() && (
                       <Text style={styles.observacion}>Obs: {t.observaciones}</Text>
                     )}
@@ -191,13 +152,13 @@ export const CotizacionPdf: React.FC<Props> = ({
               if (excluidas.length === 0) return null;
 
               return (
-                <View key={`excluidas-${i}`} style={{ marginTop: 10 }}>
-                  <Text style={styles.tarea}>{plan.plan.nombre}</Text>
+                <View key={`excluidas-${i}`} wrap={false}>
+                  <Text style={styles.planTitulo}>{plan.plan.nombre}</Text>
                   {excluidas.map((t, j) => {
                     const nombre = t.tarea?.nombre || t.nombre || t.tarea_nombre || `Tarea #${t.tarea_id}`;
                     return (
-                      <View key={j} style={styles.filaTarea}>
-                        <Text>{nombre}</Text>
+                      <View key={j}>
+                        <Text style={styles.tareaItem}>{nombre}</Text>
                         {t.observaciones?.trim() && (
                           <Text style={styles.observacion}>Obs: {t.observaciones}</Text>
                         )}
@@ -209,14 +170,13 @@ export const CotizacionPdf: React.FC<Props> = ({
             })}
           </>
         )}
+
         {/* Aviso EPP */}
+        <view style={styles.page}>
         <Text style={{ marginTop: 12 }}>
           Todo el personal asignado pertenece a nuestra empresa, se encuentra debidamente uniformado, con aportes al día y equipado con los elementos de protección personal (EPP) correspondientes, según las normativas vigentes.
         </Text>
-        <Footer />
-      </Page>
-      <Page size="A4" style={styles.page}>
-        <Header />
+
         {/* Consideraciones */}
         {consideraciones?.trim() && (
           <>
@@ -224,15 +184,15 @@ export const CotizacionPdf: React.FC<Props> = ({
             <Text>{consideraciones}</Text>
           </>
         )}
+        </view>
 
         {/* Propuesta económica */}
         {propuesta_economica?.trim() && (
           <>
             <Text style={[styles.subtitulo, { marginTop: 20 }]}>PROPUESTA ECONÓMICA</Text>
-            <Text style={{fontWeight: 'bold'}}>{propuesta_economica}</Text>
+            <Text style={{ fontWeight: 'bold' }}>{propuesta_economica}</Text>
           </>
         )}
-
 
         {/* Cierre */}
         <Text style={{ marginTop: 16 }}>
@@ -246,6 +206,7 @@ export const CotizacionPdf: React.FC<Props> = ({
           <Text>Ingeniero Agrónomo</Text>
           <Text>DIRECTOR</Text>
         </View>
+
         <Footer />
       </Page>
     </Document>
