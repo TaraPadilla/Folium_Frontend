@@ -28,14 +28,25 @@ export interface PlanConTareas extends Omit<PlanMantenimiento, 'createdAt' | 'up
 
 interface SeleccionarPlanConTareasProps {
   planes: PlanConTareas[];
+  planesAgregadosIniciales?: Array<{plan: PlanConTareas, tareas: Tarea[]}>;
   onPlanSeleccionado?: (plan: PlanConTareas) => void;
   onPlanesAgregadosChange?: (planes: Array<{plan: PlanConTareas, tareas: Tarea[]}>) => void;
 }
 
-const SeleccionarPlanConTareas: React.FC<SeleccionarPlanConTareasProps> = ({ planes, onPlanSeleccionado, onPlanesAgregadosChange }) => {
+const SeleccionarPlanConTareas: React.FC<SeleccionarPlanConTareasProps> = ({ planes, planesAgregadosIniciales, onPlanSeleccionado, onPlanesAgregadosChange }) => {
   const [planId, setPlanId] = useState<number | null>(null);
   const [tareas, setTareas] = useState<Tarea[]>([]);
-  const [planesAgregados, setPlanesAgregados] = useState<Array<{plan: PlanConTareas, tareas: Tarea[]}>>([]);
+  const [planesAgregados, setPlanesAgregados] = useState<Array<{plan: PlanConTareas, tareas: Tarea[]}>>(planesAgregadosIniciales || []);
+
+  // Sincroniza planes agregados con prop inicial (edición)
+  useEffect(() => {
+    if (planesAgregadosIniciales) {
+      setPlanesAgregados(planesAgregadosIniciales);
+      if (onPlanesAgregadosChange) onPlanesAgregadosChange(planesAgregadosIniciales);
+    }
+    // Solo al montar o si cambia la prop inicial
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [planesAgregadosIniciales]);
 
   useEffect(() => {
     if (planId) {

@@ -98,35 +98,25 @@ const CrearCotizacion: React.FC = () => {
           setConsideraciones(cot.consideraciones || '');
           setPropuestaEconomica(cot.propuesta_economica || '');
 
-          // 1. Obtener todos los planes seleccionados de esta cotización
-          const todosPlanesSeleccionados = await planSeleccionadoService.getAll();
-          const planesSeleccionados = todosPlanesSeleccionados.filter(
-            (p: any) => p.origen_tipo === 'cotizacion' && p.origen_id === cot.id
-          );
-
-          // 2. Obtener todas las tareas seleccionadas
-          const todasTareasSeleccionadas = await planTareaSeleccionadaService.getAll();
-
-          // 3. Para cada plan seleccionado, obtener el plan base y sus tareas seleccionadas
-          const planesAgregadosPromises = planesSeleccionados.map(async (planSel: any) => {
-            const planBase = await planMantenimientoService.getById(planSel.plan_id);
-            const tareasDePlan = todasTareasSeleccionadas.filter(
-              (t: any) => t.plan_seleccionado_id === planSel.id
-            );
-            // Mapear tareas al tipo Tarea esperado por el front
-            const tareas: Tarea[] = tareasDePlan.map((t: any) => ({
-              id: t.tarea_id,
-              nombre: t.nombre || '', // Si no viene, se puede buscar por id si es necesario
-              plan_id: planSel.plan_id,
-              tipo: t.tipo || '',
-              incluida: t.incluida,
-              visible_para_encargado: t.visible_para_encargado,
-              observaciones: t.observaciones ?? '',
+          // NUEVO: Usar directamente planes_seleccionados y tareas_seleccionadas del backend
+          if (cot.planes_seleccionados && Array.isArray(cot.planes_seleccionados)) {
+            const planesAgregados = cot.planes_seleccionados.map((planSel: any) => ({
+              plan: {
+                ...planSel.plan,
+                tareas: (planSel.plan && planSel.plan.tareas) || [],
+              },
+              tareas: (planSel.tareas_seleccionadas || []).map((t: any) => ({
+                id: t.tarea_id,
+                nombre: t.tarea?.nombre || '',
+                plan_id: t.tarea?.plan_id || planSel.plan_id,
+                tipo: t.tarea?.tipo || '',
+                incluida: t.incluida,
+                visible_para_encargado: t.visible_para_encargado,
+                observaciones: t.observaciones ?? '',
+              })),
             }));
-            return { plan: { ...(planBase as any), tareas: (planBase as any).tareas || [] }, tareas };
-          });
-          const planesAgregados = await Promise.all(planesAgregadosPromises);
-          setPlanesAgregados(planesAgregados);
+            setPlanesAgregados(planesAgregados);
+          }
         } catch (e) {
           // Puedes mostrar un error si lo deseas
         } finally {
@@ -182,6 +172,7 @@ const CrearCotizacion: React.FC = () => {
           </div>
           <SeleccionarPlanConTareas
             planes={planes}
+            planesAgregadosIniciales={planesAgregados}
             onPlanSeleccionado={setPlanSeleccionado}
             onPlanesAgregadosChange={setPlanesAgregados}
           />

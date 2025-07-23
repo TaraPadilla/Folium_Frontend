@@ -11,9 +11,55 @@ export interface Cotizacion {
   fecha_aceptacion: string;
   consideraciones?: string;
   propuesta_economica?: string;
+  planes_seleccionados?: PlanSeleccionadoConTareas[];
   createdAt: string | null;
   updatedAt: string | null;
   deletedAt: string | null;
+}
+
+export interface PlanSeleccionadoConTareas {
+  id: number;
+  origen_tipo: string;
+  origen_id: number;
+  plan_id: number;
+  plan?: PlanBase;
+  nombre_personalizado?: string;
+  precio_referencial?: string;
+  tareas_seleccionadas?: TareaSeleccionadaBackend[];
+  created_at?: string;
+  updated_at?: string;
+  deleted_at?: string | null;
+}
+
+export interface PlanBase {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  tareas?: any[];
+}
+
+export interface TareaSeleccionadaBackend {
+  id: number;
+  plan_seleccionado_id: number;
+  tarea_id: number;
+  tarea?: {
+    id: number;
+    nombre: string;
+    plan_id: number;
+    tipo: string;
+    created_at: string;
+    updated_at: string;
+    deleted_at: string | null;
+  };
+  incluida: number;
+  visible_para_encargado: number;
+  observaciones: string | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
 }
 
 export class CotizacionService extends BaseApiService {
