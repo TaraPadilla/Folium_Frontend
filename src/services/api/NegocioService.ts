@@ -106,15 +106,30 @@ export class NegocioService {
     return cotizacionId;
   }
   /**
-   * Guarda el contrato y (en el futuro) sus planes/tareas seleccionados de forma transaccional.
-   * Por ahora solo envía el contrato.
+   * Guarda el contrato y sus planes seleccionados de forma transaccional.
    * @param contrato Contrato a guardar (sin id)
+   * @param planesAgregados Array de objetos { plan }
    * @returns El id del contrato creado
    */
-  async guardarContratoConPlanesYtareas(contrato: Omit<Contrato, 'id'>): Promise<number> {
+  async guardarContratoConPlanesYtareas(
+    contrato: Omit<Contrato, 'id'>,
+    planesAgregados: Array<{ plan: any }>
+  ): Promise<number> {
     const contratoService = new ContratoService();
+    const planSeleccionadoService = new PlanSeleccionadoService();
+    // 1. Crear contrato y obtener id
     const creado = await contratoService.create(contrato);
-    console.log('Contrato creado:', creado);
-    return creado.id!;
+    const contratoId = creado.id!;
+    // 2. Crear cada plan_seleccionado asociado al contrato
+    for (const { plan } of planesAgregados) {
+      await planSeleccionadoService.create({
+        origen_tipo: 'contrato',
+        origen_id: contratoId,
+        plan_id: plan.id,
+        nombre_personalizado: plan.nombre ?? '',
+        precio_referencial: 0
+      });
+    }
+    return contratoId;
   }
 }
