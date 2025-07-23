@@ -132,7 +132,7 @@ export const CotizacionPdf: React.FC<Props> = ({
                   <View key={j}>
                     <Text style={styles.tareaItem}>{nombre}</Text>
                     {t.observaciones?.trim() && (
-                      <Text style={styles.observacion}>Obs: {t.observaciones}</Text>
+                      <Text style={styles.observacion}>{t.observaciones}</Text>
                     )}
                   </View>
                 );
@@ -160,7 +160,7 @@ export const CotizacionPdf: React.FC<Props> = ({
                       <View key={j}>
                         <Text style={styles.tareaItem}>{nombre}</Text>
                         {t.observaciones?.trim() && (
-                          <Text style={styles.observacion}>Obs: {t.observaciones}</Text>
+                          <Text style={styles.observacion}>{t.observaciones}</Text>
                         )}
                       </View>
                     );
