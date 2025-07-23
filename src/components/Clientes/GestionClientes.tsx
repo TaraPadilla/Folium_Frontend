@@ -305,16 +305,16 @@ const GestionClientes = () => {
             </div>
             
             <div className="w-40">
-              <Label htmlFor="filtro-estado">Filtrar por Estado</Label>
+              <Label htmlFor="filtro-grupo">Filtrar por grupo</Label>
               <Select value={filtroGrupo} onValueChange={setFiltroGrupo}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-white">
                   <SelectItem value="todos">Todos</SelectItem>
-                  <SelectItem value="prospecto">Prospecto</SelectItem>
-                  <SelectItem value="activo">Activo</SelectItem>
-                  <SelectItem value="inactivo">Inactivo</SelectItem>
+                  <SelectItem value="A">Grupo A</SelectItem>
+                  <SelectItem value="B">Grupo B</SelectItem>
+                  <SelectItem value="C">Grupo C</SelectItem>
                 </SelectContent>
               </Select>
             </div>

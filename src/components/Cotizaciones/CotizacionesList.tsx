@@ -211,10 +211,7 @@ const CotizacionesList: React.FC = () => {
   return (
     <div className="bg-white p-6 rounded shadow">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 gap-2">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Gestion de Presupuestos</h1>
-          <p className="text-gray-600">Administra tu base de presupuestos activos</p>
-        </div>
+        <h2 className="text-xl font-bold">Cotizaciones</h2>
         <div className="flex gap-2 flex-wrap">
           <input
             type="text"
