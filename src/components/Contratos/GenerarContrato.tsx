@@ -50,8 +50,18 @@ const GenerarContrato: React.FC = () => {
         frecuencia,
         dia_visita: diaVisita,
       };
-      await negocioService.guardarContratoConPlanesYtareas(contrato, 
-        cotizacion.planes_seleccionados.map(p => ({ plan: p.plan })));
+      await negocioService.guardarContratoConPlanesYtareas(
+        contrato,
+        cotizacion.planes_seleccionados.map(p => ({
+          plan: p.plan,
+          tareas: p.tareas_seleccionadas?.map(t => ({
+            tarea_id: t.tarea_id,
+            visible_para_encargado: t.visible_para_encargado,
+            observaciones: t.observaciones,
+            incluida: t.incluida ?? 1
+          })) || []
+        }))
+      );
       setSuccessMsg('¡Contrato guardado exitosamente!');
     } catch (e: any) {
       if (e && e.response && e.response.data && e.response.data.message) {

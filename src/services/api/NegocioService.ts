@@ -106,29 +106,41 @@ export class NegocioService {
     return cotizacionId;
   }
   /**
-   * Guarda el contrato y sus planes seleccionados de forma transaccional.
+   * Guarda el contrato y sus planes/tareas seleccionados de forma transaccional.
    * @param contrato Contrato a guardar (sin id)
-   * @param planesAgregados Array de objetos { plan }
+   * @param planesAgregados Array de objetos { plan, tareas }
    * @returns El id del contrato creado
    */
   async guardarContratoConPlanesYtareas(
     contrato: Omit<Contrato, 'id'>,
-    planesAgregados: Array<{ plan: any }>
+    planesAgregados: Array<{ plan: any; tareas: any[] }>
   ): Promise<number> {
     const contratoService = new ContratoService();
     const planSeleccionadoService = new PlanSeleccionadoService();
+    const planTareaSeleccionadaService = new PlanTareaSeleccionadaService();
     // 1. Crear contrato y obtener id
     const creado = await contratoService.create(contrato);
     const contratoId = creado.id!;
-    // 2. Crear cada plan_seleccionado asociado al contrato
-    for (const { plan } of planesAgregados) {
-      await planSeleccionadoService.create({
+    // 2. Crear cada plan_seleccionado asociado al contrato y sus tareas
+    for (const { plan, tareas } of planesAgregados) {
+      const planSeleccionado = await planSeleccionadoService.create({
         origen_tipo: 'contrato',
         origen_id: contratoId,
         plan_id: plan.id,
         nombre_personalizado: plan.nombre ?? '',
         precio_referencial: 0
       });
+      const planSeleccionadoId = planSeleccionado.id;
+      // 3. Crear tareas asociadas a este plan
+      for (const tarea of tareas || []) {
+        await planTareaSeleccionadaService.create({
+          plan_seleccionado_id: planSeleccionadoId,
+          tarea_id: tarea.tarea_id || tarea.id,
+          visible_para_encargado: tarea.visible_para_encargado,
+          observaciones: tarea.observaciones ?? null,
+          incluida: tarea.incluida ?? 1
+        });
+      }
     }
     return contratoId;
   }
