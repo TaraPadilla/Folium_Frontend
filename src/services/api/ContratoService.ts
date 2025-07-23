@@ -16,24 +16,27 @@ export class ContratoService extends BaseApiService {
   private endpoint = '/contratos';
 
   async getAll(): Promise<Contrato[]> {
-    const response = await this.get<{ data: Contrato[] }>(this.endpoint);
-    return response.data;
+    const response = await this.get<Contrato[]>(this.endpoint);
+    console.log('Contratos obtenidos:', response);
+    return response;
   }
 
   async getById(id: number): Promise<Contrato> {
-    const response = await this.get<{ data: Contrato }>(`${this.endpoint}/${id}`);
-    return response.data;
+    const response = await this.get<Contrato>(`${this.endpoint}/${id}`);
+    console.log('Contrato obtenido:', response);
+    return response;
   }
 
   async create(contrato: Omit<Contrato, 'id'>): Promise<Contrato> {
-    console.log('Contrato a guardar:', contrato);
-    const response = await this.post<{ data: Contrato }>(this.endpoint, contrato);
-    return response.data;
+    const contratoCreado = await this.post<Contrato>(this.endpoint, contrato);
+    console.log('Contrato creado:', contratoCreado);
+    return contratoCreado;
   }
 
   async update(id: number, contrato: Partial<Omit<Contrato, 'id'>>): Promise<Contrato> {
-    const response = await this.put<{ data: Contrato }>(`${this.endpoint}/${id}`, contrato);
-    return response.data;
+    const contratoActualizado = await this.put<Contrato>(`${this.endpoint}/${id}`, contrato);
+    console.log('Contrato actualizado:', contratoActualizado);
+    return contratoActualizado;
   }
 
   async remove(id: number): Promise<void> {

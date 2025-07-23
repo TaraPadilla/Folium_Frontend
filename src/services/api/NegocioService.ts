@@ -114,6 +114,7 @@ export class NegocioService {
   async guardarContratoConPlanesYtareas(contrato: Omit<Contrato, 'id'>): Promise<number> {
     const contratoService = new ContratoService();
     const creado = await contratoService.create(contrato);
+    console.log('Contrato creado:', creado);
     return creado.id!;
   }
 }
