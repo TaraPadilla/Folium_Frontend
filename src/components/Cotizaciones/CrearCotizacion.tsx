@@ -55,16 +55,24 @@ const CrearCotizacion: React.FC = () => {
     setGuardandoCotizacion(true);
     try {
       const negocioService = new NegocioService();
-      const cotizacion = {
-        cliente_id: clienteSeleccionado.id,
-        consideraciones,
-        propuesta_economica: propuestaEconomica,
-      } as any;
-      // Por ahora, solo existe guardarCotizacionConPlanesYtareas, úsalo tanto para crear como para editar
-      const cotizacionIdGuardada = await negocioService.guardarCotizacionConPlanesYtareas(cotizacion, planesAgregados);
-      if (isEditMode) {
+      let cotizacionIdGuardada: number;
+      if (isEditMode && cotizacionId) {
+        // Actualizar
+        cotizacionIdGuardada = await negocioService.actualizarCotizacionConPlanesYtareas({
+          id: cotizacionId,
+          cliente_id: clienteSeleccionado.id,
+          consideraciones,
+          propuesta_economica: propuestaEconomica,
+        }, planesAgregados);
         alert('Presupuesto actualizado exitosamente');
       } else {
+        // Crear
+        const cotizacion = {
+          cliente_id: clienteSeleccionado.id,
+          consideraciones,
+          propuesta_economica: propuestaEconomica,
+        } as any;
+        cotizacionIdGuardada = await negocioService.guardarCotizacionConPlanesYtareas(cotizacion, planesAgregados);
         alert('Presupuesto guardado exitosamente con id: ' + cotizacionIdGuardada);
       }
       navigate('/cotizaciones');
@@ -74,8 +82,6 @@ const CrearCotizacion: React.FC = () => {
       setGuardandoCotizacion(false);
     }
   };
-
-
 
   useEffect(() => {
     fetchPlanesConTareas().then(setPlanes);
