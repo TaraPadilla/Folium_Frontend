@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import type { PlanConTareas, Tarea } from './SeleccionarPlanConTareas';
 
 import { PlanMantenimientoService } from '@/services/api/PlanMantenimientoService';
-
+import { PlanSeleccionadoService } from '@/services/api/PlanSeleccionadoService';
+import { PlanTareaSeleccionadaService } from '@/services/api/PlanTareaSeleccionadaService';
 import { TareaService } from '@/services/api/TareaService';
 
 const fetchPlanesConTareas = async (): Promise<PlanConTareas[]> => {
@@ -26,11 +27,17 @@ import SeleccionarClienteDialog from './SeleccionarClienteDialog';
 import { Client } from '@/services/api/ClientService';
 
 import { NegocioService } from '@/services/api/NegocioService';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { CotizacionService } from '@/services/api/CotizacionService';
 
 const CrearCotizacion: React.FC = () => {
+  const { id } = useParams<{ id?: string }>();
+  const isEditMode = Boolean(id);
+  const [cargandoCotizacion, setCargandoCotizacion] = useState(false);
   const navigate = useNavigate();
   const [planes, setPlanes] = useState<PlanConTareas[]>([]);
+  // Para edición: guardar id de cotización
+  const [cotizacionId, setCotizacionId] = useState<number | null>(null);
   const [planSeleccionado, setPlanSeleccionado] = useState<PlanConTareas | null>(null);
   const [clienteSeleccionado, setClienteSeleccionado] = useState<Client | null>(null);
   const [mostrarCrearCliente, setMostrarCrearCliente] = useState(false);
@@ -48,16 +55,19 @@ const CrearCotizacion: React.FC = () => {
     setGuardandoCotizacion(true);
     try {
       const negocioService = new NegocioService();
-      // Construye el objeto cotizacion sin campos de control ni id
       const cotizacion = {
         cliente_id: clienteSeleccionado.id,
         consideraciones,
         propuesta_economica: propuestaEconomica,
-        // Agrega aquí otros campos requeridos por Cotizacion (ejemplo: fecha, descripcion, etc.)
       } as any;
-      const cotizacionId = await negocioService.guardarCotizacionConPlanesYtareas(cotizacion, planesAgregados);
-      alert(' Presupuesto guardado exitosamente con id: ' + cotizacionId);
-      navigate('/cotizaciones'); // Redirige al listado de cotizaciones
+      // Por ahora, solo existe guardarCotizacionConPlanesYtareas, úsalo tanto para crear como para editar
+      const cotizacionIdGuardada = await negocioService.guardarCotizacionConPlanesYtareas(cotizacion, planesAgregados);
+      if (isEditMode) {
+        alert('Presupuesto actualizado exitosamente');
+      } else {
+        alert('Presupuesto guardado exitosamente con id: ' + cotizacionIdGuardada);
+      }
+      navigate('/cotizaciones');
     } catch (e) {
       alert('Error al guardar el presupuesto');
     } finally {
@@ -66,13 +76,71 @@ const CrearCotizacion: React.FC = () => {
   };
 
 
+
   useEffect(() => {
     fetchPlanesConTareas().then(setPlanes);
   }, []);
 
+  // Si es edición, cargar datos de cotización
+  useEffect(() => {
+    if (isEditMode && id) {
+      setCargandoCotizacion(true);
+      const service = new CotizacionService();
+      const planSeleccionadoService = new PlanSeleccionadoService();
+      const planTareaSeleccionadaService = new PlanTareaSeleccionadaService();
+      const planMantenimientoService = new PlanMantenimientoService();
+
+      (async () => {
+        try {
+          const cot = await service.getById(Number(id));
+          setCotizacionId(cot.id);
+          setClienteSeleccionado(cot.cliente);
+          setConsideraciones(cot.consideraciones || '');
+          setPropuestaEconomica(cot.propuesta_economica || '');
+
+          // 1. Obtener todos los planes seleccionados de esta cotización
+          const todosPlanesSeleccionados = await planSeleccionadoService.getAll();
+          const planesSeleccionados = todosPlanesSeleccionados.filter(
+            (p: any) => p.origen_tipo === 'cotizacion' && p.origen_id === cot.id
+          );
+
+          // 2. Obtener todas las tareas seleccionadas
+          const todasTareasSeleccionadas = await planTareaSeleccionadaService.getAll();
+
+          // 3. Para cada plan seleccionado, obtener el plan base y sus tareas seleccionadas
+          const planesAgregadosPromises = planesSeleccionados.map(async (planSel: any) => {
+            const planBase = await planMantenimientoService.getById(planSel.plan_id);
+            const tareasDePlan = todasTareasSeleccionadas.filter(
+              (t: any) => t.plan_seleccionado_id === planSel.id
+            );
+            // Mapear tareas al tipo Tarea esperado por el front
+            const tareas: Tarea[] = tareasDePlan.map((t: any) => ({
+              id: t.tarea_id,
+              nombre: t.nombre || '', // Si no viene, se puede buscar por id si es necesario
+              plan_id: planSel.plan_id,
+              tipo: t.tipo || '',
+              incluida: t.incluida,
+              visible_para_encargado: t.visible_para_encargado,
+              observaciones: t.observaciones ?? '',
+            }));
+            return { plan: { ...(planBase as any), tareas: (planBase as any).tareas || [] }, tareas };
+          });
+          const planesAgregados = await Promise.all(planesAgregadosPromises);
+          setPlanesAgregados(planesAgregados);
+        } catch (e) {
+          // Puedes mostrar un error si lo deseas
+        } finally {
+          setCargandoCotizacion(false);
+        }
+      })();
+    }
+  }, [isEditMode, id]);
+
+  if (cargandoCotizacion) return <div>Cargando presupuesto...</div>;
+
   return (
     <div className="bg-white p-6 rounded shadow max-w-3xl mx-auto mt-10">
-      <h2 className="text-2xl font-bold mb-4">Crear Nuevo Presupuesto</h2>
+      <h2 className="text-2xl font-bold mb-4">{isEditMode ? 'Editar Presupuesto' : 'Crear Nuevo Presupuesto'}</h2>
       {/* Paso 1: Selección de cliente */}
       <SeleccionarClienteDialog
         clienteSeleccionado={clienteSeleccionado}
@@ -128,7 +196,9 @@ const CrearCotizacion: React.FC = () => {
             onClick={handleGuardarCotizacion}
             disabled={guardandoCotizacion}
           >
-            {guardandoCotizacion ? 'Guardando...' : 'Guardar Presupuesto'}
+            {guardandoCotizacion
+              ? (isEditMode ? 'Guardando cambios...' : 'Guardando...')
+              : (isEditMode ? 'Guardar Cambios' : 'Guardar Presupuesto')}
           </Button>
         </div>
       )}

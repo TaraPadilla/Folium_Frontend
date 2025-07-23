@@ -9,6 +9,8 @@ export interface Cotizacion {
   estado: string;
   fecha_envio: string;
   fecha_aceptacion: string;
+  consideraciones?: string;
+  propuesta_economica?: string;
   createdAt: string | null;
   updatedAt: string | null;
   deletedAt: string | null;

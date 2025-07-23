@@ -60,6 +60,7 @@ const LazyCotizacionPdfView = React.lazy(() => import('./components/Pdf/Cotizaci
                     <Route path="cotizaciones" element={<CotizacionesList />} />
                     <Route path="cotizaciones/nueva" element={<CrearCotizacion />} />
                     <Route path="cotizaciones/:id/pdf" element={<React.Suspense fallback={<div>Cargando PDF...</div>}><LazyCotizacionPdfView /></React.Suspense>} />
+                    <Route path="cotizaciones/:id/editar" element={<CrearCotizacion />} />
                     <Route path="*" element={<NotFound />} />
                   </Route>
               </Route>

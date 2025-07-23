@@ -97,7 +97,7 @@ const CotizacionRow: React.FC<CotizacionRowProps> = ({ cotizacion }) => {
           <button
             className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-1 px-2 rounded text-xs"
             title="Editar"
-            // onClick: funcionalidad futura
+            onClick={() => navigate(`/cotizaciones/${cotizacion.id}/editar`)}
           >Editar</button>
           <button
             className="bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-2 rounded text-xs"
@@ -211,7 +211,10 @@ const CotizacionesList: React.FC = () => {
   return (
     <div className="bg-white p-6 rounded shadow">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 gap-2">
-        <h2 className="text-xl font-bold">Cotizaciones</h2>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Gestión de Presupuestos</h1>
+          <p className="text-gray-600">Administra tu base de presupuestos activos</p>
+        </div>
         <div className="flex gap-2 flex-wrap">
           <input
             type="text"
