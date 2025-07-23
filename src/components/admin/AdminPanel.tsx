@@ -11,6 +11,7 @@ import { CityService } from "@/services/api/CityService";
 import CityTab from "./tabs/CityTab";
 import PlanesTab from "./tabs/PlanesTab";
 import TareaTab from "./tabs/TareaTab";
+import EquipoTab from "./tabs/EquipoTab";
 
 const cityService = new CityService();
 const userService = new UsuarioService();
@@ -57,12 +58,14 @@ const AdminPanel: React.FC = () => {
         <TabsList className="flex flex-wrap gap-2 mb-6">
           <TabsTrigger value="cities">Ciudades</TabsTrigger>
           <TabsTrigger value="planes">Tipo de Servicio</TabsTrigger>
+          <TabsTrigger value="equipos">Equipos</TabsTrigger>
           <TabsTrigger value="tareas">Tareas</TabsTrigger>
         </TabsList>
 
         <div className="mt-6">
           <TabsContent value="cities"><CityTab /></TabsContent>
           <TabsContent value="planes"><PlanesTab /></TabsContent>
+          <TabsContent value="equipos"><EquipoTab /></TabsContent>
           <TabsContent value="tareas"><TareaTab /></TabsContent>
         </div>
       </Tabs> 
