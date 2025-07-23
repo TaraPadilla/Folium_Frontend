@@ -2,12 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Cotizacion, CotizacionService, PlanSeleccionadoConTareas } from '@/services/api/CotizacionService';
 import { Equipo, EquipoService } from '@/services/api/EquipoService';
+import { NegocioService } from '@/services/api/NegocioService';
 
 const frecuencias = [
   { value: 'mensual', label: 'Mensual' },
   { value: 'quincenal', label: 'Quincenal' },
   { value: 'semanal', label: 'Semanal' },
   { value: 'puntual', label: 'Puntual' },
+];
+
+const diasSemana = [
+  'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'
 ];
 
 const GenerarContrato: React.FC = () => {
@@ -21,10 +26,42 @@ const GenerarContrato: React.FC = () => {
   const [fechaInicio, setFechaInicio] = useState('');
   const [fechaFin, setFechaFin] = useState('');
   const [diaVisita, setDiaVisita] = useState('Lunes');
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  // Validación de datos mínimos para guardar
+  function puedeGuardarContrato() {
+    return !!(cotizacion && equipoSeleccionado && fechaInicio && fechaFin);
+  }
 
-  const diasSemana = [
-    'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'
-  ];
+  // Lógica de guardado de contrato
+  async function handleGuardarContrato() {
+    if (!puedeGuardarContrato()) return;
+    setSaving(true);
+    setSuccessMsg(null);
+    try {
+      const negocioService = new NegocioService();
+      const contrato = {
+        cliente_id: cotizacion!.cliente_id,
+        equipo_id: Number(equipoSeleccionado),
+        cotizacion_id: cotizacion!.id,
+        fecha_inicio: fechaInicio,
+        fecha_fin: fechaFin,
+        estado: 'activo',
+        frecuencia,
+        dia_visita: diaVisita,
+      };
+      await negocioService.guardarContratoConPlanesYtareas(contrato);
+      setSuccessMsg('¡Contrato guardado exitosamente!');
+    } catch (e: any) {
+      if (e && e.response && e.response.data && e.response.data.message) {
+        setSuccessMsg('Error: ' + e.response.data.message);
+      } else {
+        setSuccessMsg('Error al guardar el contrato');
+      }
+    } finally {
+      setSaving(false);
+    }
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -53,13 +90,18 @@ const GenerarContrato: React.FC = () => {
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Generar Contrato</h1>
         <div className="flex gap-2">
-          <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow">Guardar Contrato</button>
+          <button
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow"
+            onClick={handleGuardarContrato}
+            disabled={saving || !puedeGuardarContrato()}
+          >
+            {saving ? 'Guardando...' : 'Guardar Contrato'}
+          </button>
           <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow">Ejecutar Cronograma</button>
           <button className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded shadow" onClick={() => navigate(`/cotizaciones/${cotizacion.id}/editar`)}>Editar Presupuesto</button>
         </div>
       </div>
 
-      {/* Datos del cliente y controles superiores */}
       <div className="bg-gray-50 p-4 rounded mb-4 flex flex-col gap-2">
         <div className="flex flex-wrap gap-4 items-end">
           <div>
@@ -116,16 +158,61 @@ const GenerarContrato: React.FC = () => {
                   <thead>
                     <tr className="bg-green-50">
                       <th className="px-2 py-1 border">Tarea</th>
-                      <th className="px-2 py-1 border">Incluida</th>
+                      <th className="px-2 py-1 border">Visible</th>
                       <th className="px-2 py-1 border">Observaciones</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {plan.tareas_seleccionadas?.map((tarea) => (
+                    {plan.tareas_seleccionadas?.map((tarea, tareaIdx) => (
                       <tr key={tarea.id}>
                         <td className="px-2 py-1 border">{tarea.tarea?.nombre || tarea.tarea_id}</td>
-                        <td className="px-2 py-1 border text-center">{tarea.incluida ? 'Sí' : 'No'}</td>
-                        <td className="px-2 py-1 border text-center">{tarea.observaciones || ''}</td>
+                        <td className="px-2 py-1 border text-center">
+                          <input
+                            type="checkbox"
+                            checked={!!tarea.visible_para_encargado}
+                            onChange={e => {
+                              const newValue = e.target.checked ? 1 : 0;
+                              setCotizacion(cot => {
+                                if (!cot) return cot;
+                                const updated = { ...cot };
+                                updated.planes_seleccionados = updated.planes_seleccionados?.map(p => {
+                                  if (p.id !== plan.id) return p;
+                                  return {
+                                    ...p,
+                                    tareas_seleccionadas: p.tareas_seleccionadas?.map((t, idx) =>
+                                      idx === tareaIdx ? { ...t, visible_para_encargado: newValue } : t
+                                    )
+                                  };
+                                });
+                                return updated;
+                              });
+                            }}
+                          />
+                        </td>
+                        <td className="px-2 py-1 border text-center">
+                          <input
+                            type="text"
+                            className="border rounded px-1 py-0.5 w-full"
+                            value={tarea.observaciones || ''}
+                            onChange={e => {
+                              const newValue = e.target.value;
+                              setCotizacion(cot => {
+                                if (!cot) return cot;
+                                const updated = { ...cot };
+                                updated.planes_seleccionados = updated.planes_seleccionados?.map(p => {
+                                  if (p.id !== plan.id) return p;
+                                  return {
+                                    ...p,
+                                    tareas_seleccionadas: p.tareas_seleccionadas?.map((t, idx) =>
+                                      idx === tareaIdx ? { ...t, observaciones: newValue } : t
+                                    )
+                                  };
+                                });
+                                return updated;
+                              });
+                            }}
+                          />
+                        </td>
                       </tr>
                     ))}
                   </tbody>

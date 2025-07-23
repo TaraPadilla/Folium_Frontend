@@ -1,6 +1,7 @@
 import { Cotizacion, CotizacionService } from './CotizacionService';
 import { PlanSeleccionadoService } from './PlanSeleccionadoService';
 import { PlanTareaSeleccionadaService } from './PlanTareaSeleccionadaService';
+import { Contrato, ContratoService } from './ContratoService';
 
 export class NegocioService {
   cotizacionService = new CotizacionService();
@@ -103,5 +104,16 @@ export class NegocioService {
       }
     }
     return cotizacionId;
+  }
+  /**
+   * Guarda el contrato y (en el futuro) sus planes/tareas seleccionados de forma transaccional.
+   * Por ahora solo envía el contrato.
+   * @param contrato Contrato a guardar (sin id)
+   * @returns El id del contrato creado
+   */
+  async guardarContratoConPlanesYtareas(contrato: Omit<Contrato, 'id'>): Promise<number> {
+    const contratoService = new ContratoService();
+    const creado = await contratoService.create(contrato);
+    return creado.id!;
   }
 }
