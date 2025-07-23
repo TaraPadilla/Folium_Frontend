@@ -110,6 +110,12 @@ const CotizacionRow: React.FC<CotizacionRowProps> = ({ cotizacion }) => {
             title="Ver PDF"
           >PDF</button>
           <button
+            className="bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded shadow text-xs"
+            onClick={() => navigate(`/contratos/nuevo/${cotizacion.id}`)}
+          >
+            Generar Contrato
+          </button>
+          <button
             className="bg-gray-500 hover:bg-gray-700 text-white font-semibold py-1 px-2 rounded text-xs flex items-center gap-1"
             onClick={handlePreview}
             title="Previsualizar"
