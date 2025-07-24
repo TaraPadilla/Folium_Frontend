@@ -42,7 +42,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
           children: [
             { id: 'dashboard', label: 'Dashboard', icon: Settings },
             { id: 'clientes', label: 'Clientes', icon: Users },
-            { id: 'cotizaciones', label: 'Cotizaciones', icon: CheckSquare },
+            { id: 'cotizaciones', label: 'Presupuestos', icon: CheckSquare },
+            { id: 'contratos', label: 'Contratos', icon: CheckSquare },
             { id: 'catalogos', label: 'Catálogos', icon: Settings },
             { id: 'usuarios', label: 'Usuarios', icon: Settings },
           ]
@@ -69,7 +70,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
           children: [
             { id: 'dashboard', label: 'Dashboard', icon: Settings },
             { id: 'clientes', label: 'Clientes', icon: Users },
-            { id: 'cotizaciones', label: 'Cotizaciones', icon: CheckSquare },
+            { id: 'cotizaciones', label: 'Presupuestos', icon: CheckSquare },
+            { id: 'contratos', label: 'Contratos', icon: CheckSquare },
             { id: 'visitas', label: 'Programación', icon: Calendar },
             { id: 'equipos', label: 'Equipos', icon: User },
             { id: 'tareas', label: 'Tareas', icon: CheckSquare },

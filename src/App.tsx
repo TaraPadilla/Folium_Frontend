@@ -11,6 +11,7 @@ import LoginForm from "./components/Login";
 import AdminPanel from "./components/admin/AdminPanel";
 import GestionClientes from "./components/Clientes/GestionClientes";
 import CotizacionesList from "./components/Cotizaciones/CotizacionesList";
+import ContratosList from "./components/Contratos/ContratosList";
 import CrearCotizacion from "./components/Cotizaciones/CrearCotizacion";
 import GenerarContrato from "./components/Contratos/GenerarContrato";
 import { Navigate, Outlet } from "react-router-dom";
@@ -59,6 +60,7 @@ const LazyCotizacionPdfView = React.lazy(() => import('./components/Pdf/Cotizaci
                     <Route path="catalogos" element={<AdminPanel />} />
                     <Route path="clientes" element={<GestionClientes />} />
                     <Route path="cotizaciones" element={<CotizacionesList />} />
+                    <Route path="contratos" element={<ContratosList />} />
                     <Route path="cotizaciones/nueva" element={<CrearCotizacion />} />
                     <Route path="contratos/nuevo/:cotizacionId" element={<React.Suspense fallback={<div>Cargando Contrato...</div>}><GenerarContrato /></React.Suspense>} />
                     <Route path="cotizaciones/:id/pdf" element={<React.Suspense fallback={<div>Cargando PDF...</div>}><LazyCotizacionPdfView /></React.Suspense>} />
