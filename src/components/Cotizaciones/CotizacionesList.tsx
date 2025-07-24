@@ -201,7 +201,7 @@ const CotizacionesList: React.FC = () => {
   const [filtroEstado, setFiltroEstado] = useState<string>('');
   const [filtroCliente, setFiltroCliente] = useState<string>('');
 
-  if (loading) return <div>Cargando cotizaciones...</div>;
+  if (loading) return <div>Cargando presupuestos...</div>;
   if (error) return <div className="text-red-600">{error}</div>;
 
   // Obtener estados únicos presentes en la data
