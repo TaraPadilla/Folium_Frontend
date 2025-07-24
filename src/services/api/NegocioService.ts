@@ -2,6 +2,7 @@ import { Cotizacion, CotizacionService } from './CotizacionService';
 import { PlanSeleccionadoService } from './PlanSeleccionadoService';
 import { PlanTareaSeleccionadaService } from './PlanTareaSeleccionadaService';
 import { Contrato, ContratoService } from './ContratoService';
+import { ClientService } from './ClientService';
 
 export class NegocioService {
   cotizacionService = new CotizacionService();
@@ -141,6 +142,13 @@ export class NegocioService {
           incluida: tarea.incluida ?? 1
         });
       }
+    }
+    // 4. Actualizar estado del cliente a 'activo'
+    const clientService = new ClientService();
+    await clientService.update(contrato.cliente_id, { estado: 'activo' });
+    // 5. Actualizar cotización relacionada a 'aceptada'
+    if (contrato.cotizacion_id) {
+      await this.cotizacionService.update(contrato.cotizacion_id, { estado: 'aceptada' });
     }
     return contratoId;
   }
