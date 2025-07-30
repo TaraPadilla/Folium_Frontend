@@ -94,7 +94,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
 
   const handleMenuItemClick = (itemId: string) => {
     setActiveTab(itemId);
-    setIsOpen(false); // Cerrar sidebar en móvil después de seleccionar
+    // No cerrar el sidebar automáticamente al hacer clic
     navigate(`/${itemId}`);
   };
 
@@ -160,7 +160,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
               ))
             ) : (
               // Accordion menu for admin and operator
-              <Accordion type="multiple" className="w-full">
+              <Accordion type="multiple" className="w-full" defaultValue={menuItems.map(s => s.id)}>
                 {menuItems.map((section) => (
                   <AccordionItem key={section.id} value={section.id} className="border-none">
                     <AccordionTrigger className="text-green-700 hover:text-green-800 hover:bg-green-200 px-3 py-2 rounded-md text-sm font-medium">
