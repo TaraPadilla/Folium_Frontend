@@ -42,6 +42,7 @@ import { useAuth } from "@/contexts/AuthContext";
   };
 
 const LazyCotizacionPdfView = React.lazy(() => import('./components/Pdf/CotizacionPdfView'));
+const EditarContrato = React.lazy(() => import('./components/Contratos/EditarContrato'));
 
   const App = () => {
     // Protección simple: reemplazar por contexto de autenticación en el futuro
@@ -61,6 +62,7 @@ const LazyCotizacionPdfView = React.lazy(() => import('./components/Pdf/Cotizaci
                     <Route path="clientes" element={<GestionClientes />} />
                     <Route path="cotizaciones" element={<CotizacionesList />} />
                     <Route path="contratos" element={<ContratosList />} />
+                    <Route path="contratos/editar/:contratoId" element={<React.Suspense fallback={<div>Cargando Edición...</div>}><EditarContrato /></React.Suspense>} />
                     <Route path="cotizaciones/nueva" element={<CrearCotizacion />} />
                     <Route path="contratos/nuevo/:cotizacionId" element={<React.Suspense fallback={<div>Cargando Contrato...</div>}><GenerarContrato /></React.Suspense>} />
                     <Route path="cotizaciones/:id/pdf" element={<React.Suspense fallback={<div>Cargando PDF...</div>}><LazyCotizacionPdfView /></React.Suspense>} />

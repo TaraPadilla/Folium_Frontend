@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Contrato, ContratoService } from '@/services/api/ContratoService';
 import { CotizacionService } from '@/services/api/CotizacionService';
 import { EquipoService } from '@/services/api/EquipoService';
@@ -6,6 +7,7 @@ import { Client, ClientService } from '@/services/api/ClientService';
 
 
 const ContratosList: React.FC = () => {
+  const navigate = useNavigate();
   const [contratos, setContratos] = useState<Contrato[]>([]);
   const [clientes, setClientes] = useState<Record<number, Client>>({});
   const [equipos, setEquipos] = useState<Record<number, any>>({});
@@ -168,9 +170,13 @@ const ContratosList: React.FC = () => {
                   <td className="px-4 py-2 border text-center">{contrato.dia_visita}</td>
                   <td className="px-4 py-2 border text-center">{contrato.estado}</td>
                   <td className="px-4 py-2 border text-center">
-                    {/* Acciones futuras */}
-                    <button className="bg-gray-300 px-2 py-1 rounded text-xs" disabled>...</button>
-                  </td>
+  <button
+    className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs mr-2"
+    onClick={() => navigate(`/contratos/editar/${contrato.id}`)}
+  >
+    Editar
+  </button>
+</td>
                 </tr>
               ))
             )}
