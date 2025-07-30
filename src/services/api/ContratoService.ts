@@ -1,5 +1,12 @@
 import { BaseApiService } from './BaseApiService';
 
+import { PlanSeleccionado } from './PlanSeleccionadoService';
+import { PlanTareaSeleccionada } from './PlanTareaSeleccionadaService';
+
+export interface PlanSeleccionadoConTareas extends PlanSeleccionado {
+  tareas_seleccionadas: PlanTareaSeleccionada[];
+}
+
 export interface Contrato {
   id?: number;
   cliente_id: number;
@@ -10,6 +17,7 @@ export interface Contrato {
   estado: string;
   frecuencia: string;
   dia_visita: string;
+  planes_seleccionados: PlanSeleccionadoConTareas[];
 }
 
 export class ContratoService extends BaseApiService {

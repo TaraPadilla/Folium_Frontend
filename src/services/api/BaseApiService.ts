@@ -32,7 +32,7 @@ export class BaseApiService {
         this.handleError(error);
         return Promise.reject(error);
       }
-    );
+    );  
   }
 
   protected async get<T>(endpoint: string): Promise<T> {

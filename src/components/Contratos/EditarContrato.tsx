@@ -48,10 +48,17 @@ const EditarContrato: React.FC = () => {
         setFechaFin(contratoData.fecha_fin);
         setDiaVisita(contratoData.dia_visita);
         setEstado(contratoData.estado);
-        // Obtener cotización relacionada para planes/tareas
-        const cotiz = await cotizacionService.getById(Number(contratoData.cotizacion_id));
-        setCotizacion(cotiz);
-        setPlanesSeleccionados(cotiz.planes_seleccionados || []);
+        // Usar los planes y tareas seleccionados directamente del contrato
+        const planesFormateados = (contratoData.planes_seleccionados || []).map((plan: any) => ({
+          ...plan,
+          precio_referencial: Number(plan.precio_referencial),
+          tareas_seleccionadas: (plan.tareas_seleccionadas || []).map((tarea: any) => ({
+            ...tarea,
+            incluida: Boolean(tarea.incluida),
+            visible_para_encargado: Boolean(tarea.visible_para_encargado),
+          })),
+        }));
+        setPlanesSeleccionados(planesFormateados);
         const equiposList = await equipoService.getAll();
         setEquipos(equiposList);
       } catch (e) {

@@ -10,6 +10,9 @@ interface CotizacionRowProps {
 }
 
 const CotizacionRow: React.FC<CotizacionRowProps> = ({ cotizacion }) => {
+  // LOG para depuración
+  console.log('CotizacionRow:', cotizacion);
+
   const [pdfData, setPdfData] = React.useState<any | null>(null);
   const [loadingPdf, setLoadingPdf] = React.useState(false);
   const [showLink, setShowLink] = React.useState(false);
@@ -93,6 +96,7 @@ const CotizacionRow: React.FC<CotizacionRowProps> = ({ cotizacion }) => {
           </select>
         </td>
         <td className="px-4 py-2 border">{cotizacion.fecha_envio}</td>
+        <td className="px-4 py-2 border">{cotizacion.contrato_id || '-'}</td>
         <td className="px-4 py-2 border flex gap-1">
           <button
             className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-1 px-2 rounded text-xs"
@@ -110,8 +114,10 @@ const CotizacionRow: React.FC<CotizacionRowProps> = ({ cotizacion }) => {
             title="Ver PDF"
           >PDF</button>
           <button
-            className="bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded shadow text-xs"
+            className="bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded shadow text-xs disabled:opacity-50"
             onClick={() => navigate(`/contratos/nuevo/${cotizacion.id}`)}
+            disabled={!!cotizacion.contrato_id}
+            title={cotizacion.contrato_id ? "Ya existe un contrato para esta cotización" : ""}
           >
             Generar Contrato
           </button>
@@ -252,6 +258,7 @@ const CotizacionesList: React.FC = () => {
               <th className="px-4 py-2 border">Cliente</th>
               <th className="px-4 py-2 border">Estado</th>
               <th className="px-4 py-2 border">Fecha Envío</th>
+              <th className="px-4 py-2 border">Contrato ID</th>
               <th className="px-4 py-2 border">Acciones</th>
             </tr>
           </thead>

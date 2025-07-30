@@ -1,9 +1,28 @@
 import { BaseApiService } from './BaseApiService';
 
+export interface CotizacionCliente {
+  id: number;
+  nombre: string;
+  direccion?: string;
+  ciudad_id?: number;
+  estado?: string;
+  nombre_contacto?: string;
+  celular_contacto?: string;
+  correo_contacto?: string;
+  fecha_alta?: string;
+  fecha_aceptacion?: string | null;
+  created_at?: string;
+  updated_at?: string;
+  deleted_at?: string | null;
+  link_ubicacion?: string;
+  observaciones?: string;
+}
+
 export interface Cotizacion {
   id: number;
-  cliente: any;
+  cliente: CotizacionCliente | null;
   cliente_id: number;
+  contrato_id?: number;
   fecha_creacion: string;
   ruta_pdf: string;
   estado: string;
@@ -16,6 +35,7 @@ export interface Cotizacion {
   updatedAt: string | null;
   deletedAt: string | null;
 }
+
 
 export interface PlanSeleccionadoConTareas {
   id: number;
@@ -66,7 +86,8 @@ export class CotizacionService extends BaseApiService {
   private endpoint = '/cotizaciones';
 
   async getAll(): Promise<Cotizacion[]> {
-    return this.get<Cotizacion[]>(this.endpoint);
+    const response = await this.get<Cotizacion[]>(this.endpoint); 
+    return response;
   }
 
   async getById(id: number): Promise<Cotizacion> {
