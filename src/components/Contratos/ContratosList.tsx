@@ -4,6 +4,7 @@ import { Contrato, ContratoService } from '@/services/api/ContratoService';
 import { CotizacionService } from '@/services/api/CotizacionService';
 import { EquipoService } from '@/services/api/EquipoService';
 import { Client, ClientService } from '@/services/api/ClientService';
+import VisitaService from '@/services/api/VisitaService';
 
 
 const ContratosList: React.FC = () => {
@@ -21,6 +22,8 @@ const ContratosList: React.FC = () => {
   const [filtroFrecuencia, setFiltroFrecuencia] = useState('');
   const [filtroDia, setFiltroDia] = useState('');
   const [filtroEstado, setFiltroEstado] = useState('');
+  const [agendando, setAgendando] = useState<{[id:number]: boolean}>({});
+  const [msgAgendamiento, setMsgAgendamiento] = useState<{[id:number]: string}>({});
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -140,13 +143,34 @@ const ContratosList: React.FC = () => {
                 <td className="px-4 py-2 border text-center">{contrato.frecuencia}</td>
                 <td className="px-4 py-2 border text-center">{contrato.dia_visita}</td>
                 <td className="px-4 py-2 border text-center">{contrato.estado}</td>
-                <td className="px-4 py-2 border text-center">
+                <td className="px-4 py-2 border text-center flex flex-col gap-1 items-center">
                   <button
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs mb-1"
                     onClick={() => navigate(`/contratos/editar/${contrato.id}`)}
                   >
                     Editar
                   </button>
+                  <button
+                    className="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs"
+                    disabled={!!agendando[contrato.id]}
+                    onClick={async () => {
+                      setAgendando(a => ({...a, [contrato.id]: true}));
+                      setMsgAgendamiento(m => ({...m, [contrato.id]: ''}));
+                      try {
+                        const res = await VisitaService.ejecutarAgendamiento(contrato.id);
+                        setMsgAgendamiento(m => ({...m, [contrato.id]: `✔ ${res?.count || 0} visitas creadas`}));
+                      } catch(e:any) {
+                        setMsgAgendamiento(m => ({...m, [contrato.id]: '✖ Error'}));
+                      } finally {
+                        setAgendando(a => ({...a, [contrato.id]: false}));
+                      }
+                    }}
+                  >
+                    {agendando[contrato.id] ? 'Agendando...' : 'Ejecutar agendamiento'}
+                  </button>
+                  {msgAgendamiento[contrato.id] && (
+                    <div className={`text-xs mt-1 ${msgAgendamiento[contrato.id].startsWith('✔') ? 'text-green-700' : 'text-red-600'}`}>{msgAgendamiento[contrato.id]}</div>
+                  )}
                 </td>
               </tr>
             ))
