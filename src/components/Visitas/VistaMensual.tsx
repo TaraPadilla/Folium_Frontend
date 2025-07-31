@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { format, isSameDay, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Visita } from '@/types';
@@ -33,10 +34,19 @@ const VistaMensual: React.FC<VistaMensualProps> = ({
   primerDiaSemana = (primerDiaSemana === 0) ? 6 : primerDiaSemana - 1;
   const placeholders = Array.from({ length: primerDiaSemana });
 
+  // Estado para el dialog de detalle
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [visitaDetalle, setVisitaDetalle] = React.useState<any>(null);
+
   const handleDragStart = (e: React.DragEvent, visitaId: string) => {
     e.dataTransfer.setData('visitaId', visitaId);
     e.dataTransfer.effectAllowed = 'move';
     console.log('Arrastrando visita:', visitaId);
+  };
+
+  const handleCardClick = (visita: any) => {
+    setVisitaDetalle(visita);
+    setDialogOpen(true);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -83,8 +93,9 @@ const VistaMensual: React.FC<VistaMensualProps> = ({
   };
 
   return (
-    <Card>
-      <CardHeader>
+    <>
+      <Card>
+        <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>Vista Mensual - {format(fechaSeleccionada, 'MMMM yyyy', { locale: es })}</span>
           <div className="flex space-x-2">
@@ -146,9 +157,10 @@ const VistaMensual: React.FC<VistaMensualProps> = ({
                   {visitasHoy.map((visita, index) => (
                     <div 
                       key={`${visita.id}-${index}`}
-                      className="text-xs p-2 bg-white rounded border shadow-sm cursor-move hover:shadow-md transition-all hover:scale-105 active:scale-95 border-l-2 border-l-blue-400"
+                      className="text-xs p-2 bg-white rounded border shadow-sm cursor-pointer hover:shadow-md transition-all hover:scale-105 active:scale-95 border-l-2 border-l-blue-400"
                       draggable
                       onDragStart={(e) => handleDragStart(e, visita.id)}
+                      onClick={() => handleCardClick(visita)}
                     >
                       <div className="font-medium truncate mb-1">
                         {visita.clienteNombre}
@@ -177,6 +189,62 @@ const VistaMensual: React.FC<VistaMensualProps> = ({
         </div>
       </CardContent>
     </Card>
+
+      {/* Dialog de detalle de visita */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Detalle de la Visita</DialogTitle>
+            <DialogDescription>
+              Información completa del contrato, cliente y visita.
+            </DialogDescription>
+          </DialogHeader>
+          {visitaDetalle && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+              <div>
+                <h4 className="font-semibold mb-1 text-gray-700">Cliente</h4>
+                <div className="text-sm"><b>Nombre:</b> {visitaDetalle.cliente?.nombre || visitaDetalle.clienteNombre}</div>
+                <div className="text-sm"><b>Dirección:</b> {visitaDetalle.cliente?.direccion}</div>
+                <div className="text-sm"><b>Ciudad ID:</b> {visitaDetalle.cliente?.ciudad_id}</div>
+                <div className="text-sm"><b>Estado:</b> {visitaDetalle.cliente?.estado}</div>
+                <div className="text-sm"><b>Contacto:</b> {visitaDetalle.cliente?.nombre_contacto}</div>
+                <div className="text-sm"><b>Celular:</b> {visitaDetalle.cliente?.celular_contacto}</div>
+                <div className="text-sm"><b>Correo:</b> {visitaDetalle.cliente?.correo_contacto}</div>
+                <div className="text-sm"><b>Observaciones:</b> {visitaDetalle.cliente?.observaciones}</div>
+                {visitaDetalle.cliente?.link_ubicacion && (
+                  <div className="text-sm"><b>Ubicación:</b> <a href={visitaDetalle.cliente.link_ubicacion} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Ver mapa</a></div>
+                )}
+              </div>
+              <div>
+                <h4 className="font-semibold mb-1 text-gray-700">Contrato</h4>
+                <div className="text-sm"><b>ID Contrato:</b> {visitaDetalle.contrato?.id || visitaDetalle.contrato_id}</div>
+                <div className="text-sm"><b>Equipo ID:</b> {visitaDetalle.contrato?.equipo_id || visitaDetalle.equipoId}</div>
+                <div className="text-sm"><b>Fecha Inicio:</b> {visitaDetalle.contrato?.fecha_inicio}</div>
+                <div className="text-sm"><b>Fecha Fin:</b> {visitaDetalle.contrato?.fecha_fin}</div>
+                <div className="text-sm"><b>Frecuencia:</b> {visitaDetalle.contrato?.frecuencia}</div>
+                <div className="text-sm"><b>Día visita:</b> {visitaDetalle.contrato?.dia_visita}</div>
+                <div className="text-sm"><b>Estado:</b> {visitaDetalle.contrato?.estado}</div>
+              </div>
+              <div className="md:col-span-2 border-t pt-3">
+                <h4 className="font-semibold mb-1 text-gray-700">Datos de la Visita</h4>
+                <div className="flex flex-wrap gap-4 text-sm">
+                  <div><b>ID:</b> {visitaDetalle.id}</div>
+                  <div><b>Fecha:</b> {visitaDetalle.fecha || visitaDetalle.fechaProgramada}</div>
+                  <div><b>Tipo:</b> {visitaDetalle.tipo_visita}</div>
+                  <div><b>Estado:</b> {getEstadoBadge(visitaDetalle.estado)}</div>
+                  <div><b>Observación encargado:</b> {visitaDetalle.observacion_encargado || visitaDetalle.observaciones}</div>
+                  <div><b>Creado:</b> {visitaDetalle.created_at && format(new Date(visitaDetalle.created_at), 'yyyy-MM-dd HH:mm')}</div>
+                  <div><b>Actualizado:</b> {visitaDetalle.updated_at && format(new Date(visitaDetalle.updated_at), 'yyyy-MM-dd HH:mm')}</div>
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button onClick={() => setDialogOpen(false)} className="mt-4">Cerrar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
