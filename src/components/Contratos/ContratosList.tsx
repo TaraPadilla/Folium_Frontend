@@ -118,16 +118,16 @@ const ContratosList: React.FC = () => {
       <table className="min-w-full table-auto border">
         <thead>
           <tr className="bg-green-50">
-            <th className="px-4 py-2 border">ID</th>
-            <th className="px-4 py-2 border">Cliente</th>
-            <th className="px-4 py-2 border">Equipo</th>
-            <th className="px-4 py-2 border">Cotización</th>
-            <th className="px-4 py-2 border">Fecha Inicio</th>
-            <th className="px-4 py-2 border">Fecha Fin</th>
-            <th className="px-4 py-2 border">Frecuencia</th>
-            <th className="px-4 py-2 border">Día Visita</th>
-            <th className="px-4 py-2 border">Estado</th>
-            <th className="px-4 py-2 border">Acciones</th>
+            <th className="px-2 py-1 border w-12">ID</th>
+            <th className="px-2 py-1 border min-w-[120px]">Cliente</th>
+            <th className="px-2 py-1 border min-w-[100px]">Equipo</th>
+            <th className="px-2 py-1 border min-w-[100px]">Cotización</th>
+            <th className="px-2 py-1 border w-24">Inicio</th>
+            <th className="px-2 py-1 border w-24">Fin</th>
+            <th className="px-2 py-1 border w-20">Frecuencia</th>
+            <th className="px-2 py-1 border w-20">Día</th>
+            <th className="px-2 py-1 border w-20">Estado</th>
+            <th className="px-2 py-1 border min-w-[170px]">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -145,54 +145,55 @@ const ContratosList: React.FC = () => {
                 <td className="px-4 py-2 border text-center">{contrato.frecuencia}</td>
                 <td className="px-4 py-2 border text-center">{contrato.dia_visita}</td>
                 <td className="px-4 py-2 border text-center">{contrato.estado}</td>
-                <td className="px-4 py-2 border text-center flex flex-col gap-1 items-center">
-                  <button
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs mb-1"
-                    onClick={() => navigate(`/contratos/editar/${contrato.id}`)}
-                  >
-                    Editar
-                  </button>
-                  <button
-                    className="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs mb-1"
-                    disabled={!!agendando[contrato.id]}
-                    onClick={async () => {
-                      setAgendando(a => ({...a, [contrato.id]: true}));
-                      setMsgAgendamiento(m => ({...m, [contrato.id]: ''}));
-                      try {
-                        const res = await VisitaService.ejecutarAgendamiento(contrato.id);
-                        const mensaje = res?.mensaje || 'Agendamiento ejecutado';
-                        const visitas = res?.visitas_creadas ?? 0;
-                        setMsgAgendamiento(m => ({...m, [contrato.id]: `✔ ${mensaje} (${visitas} visitas)`}));
-                      } catch(e:any) {
-                        setMsgAgendamiento(m => ({...m, [contrato.id]: '✖ Error'}));
-                      } finally {
-                        setAgendando(a => ({...a, [contrato.id]: false}));
-                      }
-                    }}
-                  >
-                    {agendando[contrato.id] ? 'Agendando...' : 'Agendar visitas'}
-                  </button>
-                  <button
-                    className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs"
-                    disabled={!!eliminando[contrato.id]}
-                    onClick={async () => {
-                      if (!window.confirm('¿Seguro que deseas eliminar este contrato?')) return;
-                      setEliminando(e => ({...e, [contrato.id]: true}));
-                      setMsgEliminar(m => ({...m, [contrato.id]: ''}));
-                      try {
-                        await new ContratoService().remove(contrato.id);
-                        setMsgEliminar(m => ({...m, [contrato.id]: '✔ Contrato eliminado'}));
-                        // Quitar de la lista local
-                        setContratos(prev => prev.filter(c => c.id !== contrato.id));
-                      } catch(e:any) {
-                        setMsgEliminar(m => ({...m, [contrato.id]: '✖ Error al eliminar'}));
-                      } finally {
-                        setEliminando(e => ({...e, [contrato.id]: false}));
-                      }
-                    }}
-                  >
-                    {eliminando[contrato.id] ? 'Eliminando...' : 'Eliminar'}
-                  </button>
+                <td className="px-2 py-1 border text-center min-w-[170px]">
+                  <div className="flex flex-row gap-1 justify-center items-center flex-wrap">
+                    <button
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs"
+                      onClick={() => navigate(`/contratos/editar/${contrato.id}`)}
+                    >
+                      Editar
+                    </button>
+                    <button
+                      className="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs"
+                      disabled={!!agendando[contrato.id]}
+                      onClick={async () => {
+                        setAgendando(a => ({...a, [contrato.id]: true}));
+                        setMsgAgendamiento(m => ({...m, [contrato.id]: ''}));
+                        try {
+                          const res = await VisitaService.ejecutarAgendamiento(contrato.id);
+                          const mensaje = res?.mensaje || 'Agendamiento ejecutado';
+                          const visitas = res?.visitas_creadas ?? 0;
+                          setMsgAgendamiento(m => ({...m, [contrato.id]: `✔ ${mensaje} (${visitas} visitas)`}));
+                        } catch(e:any) {
+                          setMsgAgendamiento(m => ({...m, [contrato.id]: '✖ Error'}));
+                        } finally {
+                          setAgendando(a => ({...a, [contrato.id]: false}));
+                        }
+                      }}
+                    >
+                      {agendando[contrato.id] ? 'Agendando...' : 'Agendar visitas'}
+                    </button>
+                    <button
+                      className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs"
+                      disabled={!!eliminando[contrato.id]}
+                      onClick={async () => {
+                        if (!window.confirm('¿Seguro que deseas eliminar este contrato?')) return;
+                        setEliminando(e => ({...e, [contrato.id]: true}));
+                        setMsgEliminar(m => ({...m, [contrato.id]: ''}));
+                        try {
+                          await new ContratoService().remove(contrato.id);
+                          setMsgEliminar(m => ({...m, [contrato.id]: '✔ Contrato eliminado'}));
+                          setContratos(prev => prev.filter(c => c.id !== contrato.id));
+                        } catch(e:any) {
+                          setMsgEliminar(m => ({...m, [contrato.id]: '✖ Error al eliminar'}));
+                        } finally {
+                          setEliminando(e => ({...e, [contrato.id]: false}));
+                        }
+                      }}
+                    >
+                      {eliminando[contrato.id] ? 'Eliminando...' : 'Eliminar'}
+                    </button>
+                  </div>
                   {msgAgendamiento[contrato.id] && (
                     <div className={`text-xs mt-1 ${msgAgendamiento[contrato.id].startsWith('✔') ? 'text-green-700' : 'text-red-600'}`}>{msgAgendamiento[contrato.id]}</div>
                   )}

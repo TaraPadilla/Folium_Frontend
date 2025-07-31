@@ -52,9 +52,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
           label: 'Operaciones', 
           icon: Calendar,
           children: [
-            { id: 'equipos', label: 'Equipos', icon: User },
-            { id: 'tareas', label: 'Tareas', icon: CheckSquare },
             { id: 'programacion', label: 'Agendamientos', icon: Calendar },
+            { id: 'hoja-ruta', label: 'Mi Hoja de Ruta', icon: MapPin },
+            { id: 'visitas-hoy', label: 'Visitas de Hoy', icon: Clock },
           ]
         }
       ];
@@ -72,8 +72,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
             { id: 'cotizaciones', label: 'Presupuestos', icon: CheckSquare },
             { id: 'contratos', label: 'Contratos', icon: CheckSquare },
             { id: 'visitas', label: 'Programación', icon: Calendar },
-            { id: 'equipos', label: 'Equipos', icon: User },
-            { id: 'tareas', label: 'Tareas', icon: CheckSquare },
           ]
         }
       ];
