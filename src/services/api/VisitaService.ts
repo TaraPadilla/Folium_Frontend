@@ -19,6 +19,7 @@ export interface ClienteVisita {
 }
 
 export interface ContratoVisita {
+  equipo: any;
   id: number;
   cliente_id: number;
   equipo_id: number;

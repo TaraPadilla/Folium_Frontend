@@ -8,71 +8,92 @@ import { Calendar as CalendarIcon, MapPin, Clock, Users, CheckCircle } from 'luc
 import { Visita, Cliente, Equipo } from '@/types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import VisitaService from '@/services/api/VisitaService';
 
-// Extensión temporal del tipo Visita para permitir contratoId y nombres
-interface VisitaHojaRuta extends Visita {
-  contratoId: string;
+
+import { TareaAdicional } from '@/types';
+
+export interface VisitaHojaRuta {
+  id: number;
+  clienteId: number;
+  equipoId: number;
+  contratoId: number;
   clienteNombre: string;
   equipoNombre: string;
+  direccion: string;
+  fechaProgramada: string;
+  estado: "programada" | "en_proceso" | "completada" | "reagendada" | "cancelada";
+  tareasProgramadas: string[];
+  tareasAdicionales: string[];
+  tareasRealizadas: string[];
+  observaciones: string;
 }
+
+
 
 const HojaRuta = () => {
   // Selector de rango (día/semana)
   const [rango, setRango] = useState<'dia' | 'semana'>('dia');
   const [fecha, setFecha] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
-  const [visitas, setVisitas] = useState<VisitaHojaRuta[]>([]);
-  const [contratos, setContratos] = useState<Record<string, { tareas: { nombre: string, visible: boolean }[] }>>({});
+  const [visitas, setVisitas] = useState<VisitaHojaRuta[]>([] );
   const [loading, setLoading] = useState(false);
   const [observaciones, setObservaciones] = useState<Record<string, string>>({});
   const [tareasRealizadas, setTareasRealizadas] = useState<Record<string, string[]>>({});
 
-  // Mock carga de visitas y contratos
   useEffect(() => {
-    setLoading(true);
-    // Simular fetch de visitas según rango y fecha
-    setTimeout(() => {
-      // Visitas para el encargado
-      const mockVisitas: VisitaHojaRuta[] = [
-        {
-          id: 'v1',
-          clienteId: '1',
-          clienteNombre: 'Jardín Villa Rosa',
-          equipoId: '1',
-          equipoNombre: 'Equipo Alpha',
-          contratoId: 'c1',
-          fechaProgramada: fecha,
-          estado: 'programada',
-          tareasRealizadas: [],
-          observaciones: '',
-          direccion: 'Av. Principal 123',
-          tareasProgramadas: ['Poda de césped', 'Riego de plantas'],
-          tareasAdicionales: []
-        },
-        {
-          id: 'v2',
-          clienteId: '2',
-          clienteNombre: 'Condominio Los Pinos',
-          equipoId: '1',
-          equipoNombre: 'Equipo Alpha',
-          contratoId: 'c2',
-          fechaProgramada: fecha,
-          estado: 'programada',
-          tareasRealizadas: [],
-          observaciones: '',
-          direccion: 'Calle Secundaria 456',
-          tareasProgramadas: ['Mantenimiento de jardines', 'Poda de arbustos'],
-          tareasAdicionales: []
-        }
-      ];
-      setVisitas(mockVisitas);
-      // Simular fetch de contratos asociados a las visitas
-      setContratos({
-        c1: { tareas: [ { nombre: 'Poda de césped', visible: true }, { nombre: 'Riego de plantas', visible: true }, { nombre: 'Limpieza general', visible: false } ] },
-        c2: { tareas: [ { nombre: 'Mantenimiento de jardines', visible: true }, { nombre: 'Poda de arbustos', visible: true } ] }
-      });
-      setLoading(false);
-    }, 500);
+    const fetchVisitasConTareas = async () => {
+      setLoading(true);
+      try {
+        const visitasBase = await VisitaService.getAll();
+  
+        const visitasExtendidas: VisitaHojaRuta[] = await Promise.all(
+          visitasBase.map(async (v) => {
+            let tareasVisibles: string[] = [];
+  
+            try {
+              const response = await fetch(`/api/contratos/${v.contrato_id}`);
+              const contrato = (await response.json()).data;
+  
+              const planes = contrato.planes_seleccionados || [];
+              tareasVisibles = planes.flatMap((plan: any) =>
+                plan.tareas_seleccionadas
+                  .filter((t: any) => t.visible_para_encargado === 1)
+                  .map((t: any) => t.tarea.nombre)
+              );
+            } catch (error) {
+              console.warn(`Error cargando contrato ${v.contrato_id}:`, error);
+            }
+  
+            return {
+              id: v.id,
+              clienteId: v.cliente_id,
+              equipoId: v.equipo_id,
+              contratoId: v.contrato_id,
+              clienteNombre: v.cliente.nombre,
+              equipoNombre: v.contrato.equipo?.nombre || '',
+              direccion: v.cliente.direccion,
+              fechaProgramada: v.fecha,
+              estado: v.estado,
+              tareasProgramadas: tareasVisibles,
+              tareasAdicionales: [],
+              tareasRealizadas: [],
+              observaciones: '',
+            } as VisitaHojaRuta;
+          })
+        );
+  
+        setVisitas(visitasExtendidas);
+      } catch (err) {
+        console.error('Error al cargar visitas:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchVisitasConTareas();
   }, [rango, fecha]);
+  
+  
 
   // Handlers
   const marcarTarea = (visitaId: string, tarea: string) => {
@@ -93,13 +114,13 @@ const HojaRuta = () => {
   };
   const cerrarVisita = (visitaId: string) => {
     // Aquí guardarías el estado en backend
-    setVisitas(prev => prev.map(v => v.id === visitaId ? { ...v, estado: 'completada' } : v));
+    setVisitas(prev => prev.map(v => v.id === Number(visitaId) ? { ...v, estado: 'completada' } : v));
   };
 
   // Card colapsable: control de expansión múltiple
   const [expandedCardIds, setExpandedCardIds] = useState<string[]>([]);
   useEffect(() => {
-    if (visitas.length > 0) setExpandedCardIds([visitas[0].id]);
+    if (visitas.length > 0) setExpandedCardIds([visitas[0].id.toString()]);
   }, [visitas.length]);
 
   // Filtro por equipo
@@ -107,7 +128,7 @@ const HojaRuta = () => {
   const equiposUnicos = Array.from(new Set(visitas.map(v => v.equipoId)));
   const visitasFiltradas = equipoFiltro === 'todos'
     ? visitas
-    : visitas.filter(v => v.equipoId === equipoFiltro);
+    : visitas.filter(v => v.equipoId === Number(equipoFiltro));
 
   // UI
   return (
@@ -135,16 +156,14 @@ const HojaRuta = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-6">
           {visitasFiltradas.map((visita, idx) => {
-            const contrato = contratos[visita.contratoId];
-            const tareasVisibles = contrato ? contrato.tareas.filter(t => t.visible).map(t => t.nombre) : [];
-            const expanded = expandedCardIds.includes(visita.id);
+            const expanded = expandedCardIds.includes(visita.id.toString());
             return (
               <Card key={visita.id} className={`h-full flex flex-col shadow-md transition-all duration-300 ${expanded ? 'ring-2 ring-green-500' : ''}`}>
                 <div
                   className="cursor-pointer select-none"
                   onClick={() => {
                     setExpandedCardIds(prev =>
-                      expanded ? prev.filter(id => id !== visita.id) : [...prev, visita.id]
+                      expanded ? prev.filter(id => id !== visita.id.toString()) : [...prev, visita.id.toString()]
                     );
                   }}
                 >
@@ -168,33 +187,37 @@ const HojaRuta = () => {
                 </div>
                 {expanded && (
                   <CardContent>
-                    <div className="mb-2">
+                        <div className="mb-2">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-semibold">Tareas:</span>
-                        <Button size="sm" onClick={() => marcarTodas(visita.id, tareasVisibles)} className="ml-auto">
+                        <Button size="sm" onClick={() => marcarTodas(visita.id.toString(), visita.tareasProgramadas)} className="ml-auto">
                           Marcar todas
                         </Button>
                       </div>
                       <ul>
-                        {tareasVisibles.map((tarea, idx) => (
+                        {visita.tareasProgramadas.map((tarea, idx) => (
                           <li key={idx} className="flex items-center gap-2 mb-1">
-                            <Checkbox checked={tareasRealizadas[visita.id]?.includes(tarea) || false} onCheckedChange={() => marcarTarea(visita.id, tarea)} />
+                            <Checkbox
+                              checked={tareasRealizadas[visita.id.toString()]?.includes(tarea) || false}
+                              onCheckedChange={() => marcarTarea(visita.id.toString(), tarea)}
+                            />
                             <span>{tarea}</span>
-                          </li>
+                          </li> 
                         ))}
                       </ul>
                     </div>
+
                     <div className="mb-2">
                       <Textarea
                         placeholder="Observaciones..."
-                        value={observaciones[visita.id] || ''}
-                        onChange={e => handleObservacion(visita.id, e.target.value)}
+                        value={observaciones[visita.id.toString()] || ''}
+                        onChange={e => handleObservacion(visita.id.toString(), e.target.value)}
                         rows={2}
                       />
                     </div>
                     <Button
-                      disabled={!tareasRealizadas[visita.id] || tareasRealizadas[visita.id].length === 0 || visita.estado === 'completada'}
-                      onClick={() => cerrarVisita(visita.id)}
+                      disabled={!tareasRealizadas[visita.id.toString()] || tareasRealizadas[visita.id.toString()].length === 0 || visita.estado === 'completada'}
+                      onClick={() => cerrarVisita(visita.id.toString())}
                       className="w-full bg-green-600 hover:bg-green-700"
                     >
                       {visita.estado === 'completada' ? (
