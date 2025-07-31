@@ -164,11 +164,6 @@ const ProgramacionVisitas = () => {
     );
   };
 
-  // Si necesitas crear visitas manualmente, debes implementar un endpoint real o eliminar esta función si solo gestionas visitas desde el backend
-  // Si quieres mantener la función para pruebas, asegúrate de que clientes y equipos existan y estén bien definidos
-  // Si no, puedes comentar o eliminar esta función para evitar errores
-
-
   const reagendarVisita = (visitaId: string, nuevaFecha: string) => {
     setVisitas(prev => prev.map(visita => 
       visita.id === visitaId 
@@ -364,13 +359,13 @@ const ProgramacionVisitas = () => {
       {/* Tabs para diferentes vistas */}
       <Tabs defaultValue="calendario" className="w-full">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="calendario" className="flex items-center">
-            <Grid className="h-4 w-4 mr-2" />
-            Calendario
-          </TabsTrigger>
           <TabsTrigger value="diaria" className="flex items-center">
             <Clock className="h-4 w-4 mr-2" />
             Vista Diaria
+          </TabsTrigger>
+          <TabsTrigger value="calendario" className="flex items-center">
+            <Grid className="h-4 w-4 mr-2" />
+            Calendario
           </TabsTrigger>
           <TabsTrigger value="semanal" className="flex items-center">
             <CalendarDays className="h-4 w-4 mr-2" />
@@ -381,7 +376,17 @@ const ProgramacionVisitas = () => {
             Vista Mensual
           </TabsTrigger>
         </TabsList>
-        
+
+        <TabsContent value="diaria" className="mt-6">
+          <VistaDiaria 
+            visitas={visitas}
+            fechaSeleccionada={fechaSeleccionada}
+            setFechaSeleccionada={setFechaSeleccionada}
+            clientes={clientes}
+            equipos={equipos}
+          />
+        </TabsContent>
+
         <TabsContent value="calendario" className="mt-6">
           <div className="mb-4">
             <h2 className="text-xl font-semibold text-gray-800 mb-2">
@@ -402,16 +407,6 @@ const ProgramacionVisitas = () => {
             clientes={clientes}
             equipos={equipos}
             onReagendarVisita={reagendarVisita}
-          />
-        </TabsContent>
-        
-        <TabsContent value="diaria" className="mt-6">
-          <VistaDiaria 
-            visitas={visitas}
-            fechaSeleccionada={fechaSeleccionada}
-            setFechaSeleccionada={setFechaSeleccionada}
-            clientes={clientes}
-            equipos={equipos}
           />
         </TabsContent>
         
