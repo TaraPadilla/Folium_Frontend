@@ -63,6 +63,7 @@ export interface Tarea {
 }
 
 export interface Visita {
+  direccion: any;
   id: string;
   clienteId: string;
   clienteNombre: string;

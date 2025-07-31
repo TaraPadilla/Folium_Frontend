@@ -45,10 +45,12 @@ const ProgramacionVisitas = () => {
       try {
         const data = await VisitaService.getAll();
         // Mapeo de datos del backend al formato esperado por VistaMensual
+        console.log('data', data);
         const visitasBackend = data.map((visita: any) => ({
           id: visita.id.toString(),
           clienteId: visita.cliente_id?.toString() || '',
           clienteNombre: visita.cliente?.nombre || '',
+          direccion: visita.cliente?.direccion || '',
           equipoId: visita.equipo_id?.toString() || '',
           equipoNombre: visita.contrato?.equipo_id ? `Equipo ${visita.contrato.equipo_id}` : '',
           fechaProgramada: visita.fecha, // formato yyyy-MM-dd
@@ -357,7 +359,7 @@ const ProgramacionVisitas = () => {
       </div>
 
       {/* Tabs para diferentes vistas */}
-      <Tabs defaultValue="calendario" className="w-full">
+      <Tabs defaultValue="diaria" className="w-full">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="diaria" className="flex items-center">
             <Clock className="h-4 w-4 mr-2" />

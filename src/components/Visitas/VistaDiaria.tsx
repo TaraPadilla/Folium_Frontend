@@ -24,7 +24,7 @@ const VistaDiaria: React.FC<VistaDiariaProps> = ({
   equipos 
 }) => {
   const visitasHoy = visitas.filter(visita => 
-    isSameDay(new Date(visita.fechaProgramada), fechaSeleccionada)
+    isSameDay(new Date(visita.fechaProgramada + 'T00:00:00'), fechaSeleccionada)
   );
 
   const getEstadoBadge = (estado: string) => {
@@ -44,6 +44,7 @@ const VistaDiaria: React.FC<VistaDiariaProps> = ({
     }
   };
 
+  console.log('visitasHoy', visitasHoy);
   const visitasPorEquipo = visitasHoy.reduce((acc, visita) => {
     if (!acc[visita.equipoId]) {
       acc[visita.equipoId] = [];
@@ -110,13 +111,13 @@ const VistaDiaria: React.FC<VistaDiariaProps> = ({
         </Card>
       ) : (
         Object.entries(visitasPorEquipo).map(([equipoId, visitasEquipo]) => {
-          const equipo = equipos.find(e => e.id === equipoId);
+          const equipo = equipos.find(e => e.id === Number(equipoId));
           return (
             <Card key={equipoId}>
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Users className="h-5 w-5 mr-2 text-blue-600" />
-                  {equipo?.nombre || 'Equipo Desconocido'}
+                  {visitasEquipo[0]?.equipoNombre || 'Equipo Desconocido'}
                   <Badge variant="outline" className="ml-2">
                     {visitasEquipo.length} visitas
                   </Badge>
@@ -138,7 +139,7 @@ const VistaDiaria: React.FC<VistaDiariaProps> = ({
                             <div className="text-gray-600 space-y-1">
                               <div className="flex items-center">
                                 <MapPin className="h-4 w-4 mr-2" />
-                                {cliente?.direccion || 'Dirección no disponible'}
+                                {visita.direccion || cliente?.direccion || 'Dirección no disponible'}
                               </div>
                               <div className="flex items-center">
                                 <Clock className="h-4 w-4 mr-2" />
