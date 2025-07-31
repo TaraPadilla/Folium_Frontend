@@ -158,7 +158,9 @@ const ContratosList: React.FC = () => {
                       setMsgAgendamiento(m => ({...m, [contrato.id]: ''}));
                       try {
                         const res = await VisitaService.ejecutarAgendamiento(contrato.id);
-                        setMsgAgendamiento(m => ({...m, [contrato.id]: `✔ ${res?.count || 0} visitas creadas`}));
+                        const mensaje = res?.mensaje || 'Agendamiento ejecutado';
+                        const visitas = res?.visitas_creadas ?? 0;
+                        setMsgAgendamiento(m => ({...m, [contrato.id]: `✔ ${mensaje} (${visitas} visitas)`}));
                       } catch(e:any) {
                         setMsgAgendamiento(m => ({...m, [contrato.id]: '✖ Error'}));
                       } finally {
@@ -166,7 +168,7 @@ const ContratosList: React.FC = () => {
                       }
                     }}
                   >
-                    {agendando[contrato.id] ? 'Agendando...' : 'Ejecutar agendamiento'}
+                    {agendando[contrato.id] ? 'Agendando...' : 'Agendar visitas'}
                   </button>
                   {msgAgendamiento[contrato.id] && (
                     <div className={`text-xs mt-1 ${msgAgendamiento[contrato.id].startsWith('✔') ? 'text-green-700' : 'text-red-600'}`}>{msgAgendamiento[contrato.id]}</div>
