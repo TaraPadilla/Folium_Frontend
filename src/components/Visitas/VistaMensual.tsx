@@ -26,6 +26,13 @@ const VistaMensual: React.FC<VistaMensualProps> = ({
   const finMes = endOfMonth(fechaSeleccionada);
   const diasMes = eachDayOfInterval({ start: inicioMes, end: finMes });
 
+  // Calcular cuántos días vacíos hay que poner antes del primer día del mes
+  // getDay(): 0=Domingo, 1=Lunes, ..., 6=Sábado
+  let primerDiaSemana = inicioMes.getDay();
+  // Ajustar para que semana inicie en lunes (0=Lunes, 6=Domingo)
+  primerDiaSemana = (primerDiaSemana === 0) ? 6 : primerDiaSemana - 1;
+  const placeholders = Array.from({ length: primerDiaSemana });
+
   const handleDragStart = (e: React.DragEvent, visitaId: string) => {
     e.dataTransfer.setData('visitaId', visitaId);
     e.dataTransfer.effectAllowed = 'move';
@@ -112,6 +119,10 @@ const VistaMensual: React.FC<VistaMensualProps> = ({
         </div>
         
         <div className="grid grid-cols-7 gap-2">
+          {/* Placeholders para días vacíos al inicio */}
+          {placeholders.map((_, idx) => (
+            <div key={`ph-${idx}`} className="min-h-[150px] bg-gray-100 rounded-lg" />
+          ))}
           {diasMes.map(dia => {
             const visitasHoy = visitasPorDia(dia);
             const esHoy = isSameDay(dia, new Date());
