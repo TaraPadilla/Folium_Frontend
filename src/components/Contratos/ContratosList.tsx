@@ -24,6 +24,8 @@ const ContratosList: React.FC = () => {
   const [filtroEstado, setFiltroEstado] = useState('');
   const [agendando, setAgendando] = useState<{[id:number]: boolean}>({});
   const [msgAgendamiento, setMsgAgendamiento] = useState<{[id:number]: string}>({});
+  const [eliminando, setEliminando] = useState<{[id:number]: boolean}>({});
+  const [msgEliminar, setMsgEliminar] = useState<{[id:number]: string}>({});
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -151,7 +153,7 @@ const ContratosList: React.FC = () => {
                     Editar
                   </button>
                   <button
-                    className="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs"
+                    className="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs mb-1"
                     disabled={!!agendando[contrato.id]}
                     onClick={async () => {
                       setAgendando(a => ({...a, [contrato.id]: true}));
@@ -170,8 +172,32 @@ const ContratosList: React.FC = () => {
                   >
                     {agendando[contrato.id] ? 'Agendando...' : 'Agendar visitas'}
                   </button>
+                  <button
+                    className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs"
+                    disabled={!!eliminando[contrato.id]}
+                    onClick={async () => {
+                      if (!window.confirm('¿Seguro que deseas eliminar este contrato?')) return;
+                      setEliminando(e => ({...e, [contrato.id]: true}));
+                      setMsgEliminar(m => ({...m, [contrato.id]: ''}));
+                      try {
+                        await new ContratoService().remove(contrato.id);
+                        setMsgEliminar(m => ({...m, [contrato.id]: '✔ Contrato eliminado'}));
+                        // Quitar de la lista local
+                        setContratos(prev => prev.filter(c => c.id !== contrato.id));
+                      } catch(e:any) {
+                        setMsgEliminar(m => ({...m, [contrato.id]: '✖ Error al eliminar'}));
+                      } finally {
+                        setEliminando(e => ({...e, [contrato.id]: false}));
+                      }
+                    }}
+                  >
+                    {eliminando[contrato.id] ? 'Eliminando...' : 'Eliminar'}
+                  </button>
                   {msgAgendamiento[contrato.id] && (
                     <div className={`text-xs mt-1 ${msgAgendamiento[contrato.id].startsWith('✔') ? 'text-green-700' : 'text-red-600'}`}>{msgAgendamiento[contrato.id]}</div>
+                  )}
+                  {msgEliminar[contrato.id] && (
+                    <div className={`text-xs mt-1 ${msgEliminar[contrato.id].startsWith('✔') ? 'text-green-700' : 'text-red-600'}`}>{msgEliminar[contrato.id]}</div>
                   )}
                 </td>
               </tr>
