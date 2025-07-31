@@ -13,6 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CalendarIcon, Plus, Filter, RotateCcw, Clock, MapPin, CalendarDays, Calendar as CalendarViewIcon, Grid } from 'lucide-react';
 import { Visita, Cliente, Equipo } from '@/types';
+import VisitaService from '@/services/api/VisitaService';
 import { format, startOfWeek, addDays, isSameDay } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -38,106 +39,32 @@ const ProgramacionVisitas = () => {
     tareasProgramadas: [] as string[]
   });
 
-  // Mock data
+  // Fetch visitas reales desde el backend
   useEffect(() => {
-    const mockClientes: Cliente[] = [
-      {
-        id: '1',
-        nombre: 'Jardín Villa Rosa',
-        direccion: 'Av. Principal 123',
-        telefono: '555-0101',
-        email: 'villa.rosa@email.com',
-        grupo: 'A',
-        plan: 'semanal',
-        diaAsignado: 'Lunes',
-        fechaRegistro: '2024-01-15',
-        activo: true,
-        observaciones: '',
-        historial: []
-      },
-      {
-        id: '2',
-        nombre: 'Condominio Los Pinos',
-        direccion: 'Calle 45 #78-90',
-        telefono: '555-0102',
-        email: 'lospinos@email.com',
-        grupo: 'B',
-        plan: 'quincenal',
-        diaAsignado: 'Miércoles',
-        fechaRegistro: '2024-01-20',
-        activo: true,
-        observaciones: '',
-        historial: []
-      },
-      {
-        id: '3',
-        nombre: 'Residencia El Roble',
-        direccion: 'Carrera 12 #34-56',
-        telefono: '555-0103',
-        email: 'elroble@email.com',
-        grupo: 'C',
-        plan: 'mensual',
-        diaAsignado: 'Viernes',
-        fechaRegistro: '2024-01-25',
-        activo: true,
-        observaciones: '',
-        historial: []
+    const fetchVisitas = async () => {
+      try {
+        const data = await VisitaService.getAll();
+        // Mapeo de datos del backend al formato esperado por VistaMensual
+        const visitasBackend = data.map((visita: any) => ({
+          id: visita.id.toString(),
+          clienteId: visita.cliente_id?.toString() || '',
+          clienteNombre: visita.cliente?.nombre || '',
+          equipoId: visita.equipo_id?.toString() || '',
+          equipoNombre: visita.contrato?.equipo_id ? `Equipo ${visita.contrato.equipo_id}` : '',
+          fechaProgramada: visita.fecha, // formato yyyy-MM-dd
+          estado: visita.estado,
+          tareasProgramadas: ['Mantenimiento'], // O puedes mapear a partir de otro campo si existe
+          tareasRealizadas: [], // Si tienes esta info
+          tareasAdicionales: [], // Si tienes esta info
+          observaciones: visita.observacion_encargado || visita.cliente?.observaciones || ''
+        }));
+        setVisitas(visitasBackend);
+      } catch (error) {
+        console.error('Error al obtener visitas:', error);
       }
-    ];
-
-    const mockEquipos: Equipo[] = [
-      {
-        id: '1',
-        nombre: 'Equipo Alpha',
-        encargadoId: '3',
-        encargadoNombre: 'Carlos Hernández',
-        activo: true,
-        miembros: ['Carlos Hernández', 'José Martínez']
-      },
-      {
-        id: '2',
-        nombre: 'Equipo Beta',
-        encargadoId: '4',
-        encargadoNombre: 'Ana García',
-        activo: true,
-        miembros: ['Ana García', 'Luis Rodríguez']
-      }
-    ];
-
-    const mockVisitas: Visita[] = [
-      {
-        id: '1',
-        clienteId: '1',
-        clienteNombre: 'Jardín Villa Rosa',
-        equipoId: '1',
-        equipoNombre: 'Equipo Alpha',
-        fechaProgramada: format(new Date(), 'yyyy-MM-dd'),
-        estado: 'programada',
-        tareasProgramadas: ['Poda de césped', 'Riego de plantas', 'Limpieza general'],
-        tareasRealizadas: [],
-        tareasAdicionales: [],
-        observaciones: ''
-      },
-      {
-        id: '2',
-        clienteId: '2',
-        clienteNombre: 'Condominio Los Pinos',
-        equipoId: '2',
-        equipoNombre: 'Equipo Beta',
-        fechaProgramada: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
-        estado: 'programada',
-        tareasProgramadas: ['Mantenimiento de jardines', 'Poda de arbustos'],
-        tareasRealizadas: [],
-        tareasAdicionales: [],
-        observaciones: ''
-      }
-    ];
-
-    setClientes(mockClientes);
-    setEquipos(mockEquipos);
-    setVisitas(mockVisitas);
-  }, []);
-
+    };
+    fetchVisitas();
+  }, [fechaSeleccionada.getFullYear(), fechaSeleccionada.getMonth()]); // Refetch cuando cambie el mes
   // Vista semanal
   const VistaSemanal = () => {
     const inicioSemana = startOfWeek(fechaSeleccionada, { weekStartsOn: 1 });
@@ -237,45 +164,10 @@ const ProgramacionVisitas = () => {
     );
   };
 
-  const crearVisita = () => {
-    if (!nuevaVisita.clienteId || !nuevaVisita.equipoId || !nuevaVisita.fechaProgramada) {
-      return;
-    }
+  // Si necesitas crear visitas manualmente, debes implementar un endpoint real o eliminar esta función si solo gestionas visitas desde el backend
+  // Si quieres mantener la función para pruebas, asegúrate de que clientes y equipos existan y estén bien definidos
+  // Si no, puedes comentar o eliminar esta función para evitar errores
 
-    const cliente = clientes.find(c => c.id === nuevaVisita.clienteId);
-    const equipo = equipos.find(e => e.id === nuevaVisita.equipoId);
-
-    if (!cliente || !equipo) return;
-
-    const tareasPorPlan = {
-      semanal: ['Poda de césped', 'Riego de plantas', 'Limpieza general'],
-      quincenal: ['Mantenimiento de jardines', 'Poda de arbustos', 'Fertilización'],
-      mensual: ['Mantenimiento completo', 'Poda general', 'Tratamiento de plagas']
-    };
-
-    const visita: Visita = {
-      id: Date.now().toString(),
-      clienteId: nuevaVisita.clienteId,
-      clienteNombre: cliente.nombre,
-      equipoId: nuevaVisita.equipoId,
-      equipoNombre: equipo.nombre,
-      fechaProgramada: nuevaVisita.fechaProgramada,
-      estado: 'programada',
-      tareasProgramadas: tareasPorPlan[cliente.plan],
-      tareasRealizadas: [],
-      tareasAdicionales: [],
-      observaciones: ''
-    };
-
-    setVisitas(prev => [...prev, visita]);
-    setNuevaVisita({
-      clienteId: '',
-      equipoId: '',
-      fechaProgramada: '',
-      tareasProgramadas: []
-    });
-    setIsDialogOpen(false);
-  };
 
   const reagendarVisita = (visitaId: string, nuevaFecha: string) => {
     setVisitas(prev => prev.map(visita => 
@@ -368,9 +260,9 @@ const ProgramacionVisitas = () => {
                   <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                     Cancelar
                   </Button>
-                  <Button onClick={crearVisita} className="bg-green-600 hover:bg-green-700">
+                  {/* <Button onClick={crearVisita} className="bg-green-600 hover:bg-green-700">
                     Programar
-                  </Button>
+                  </Button> */}
                 </div>
               </div>
             </DialogContent>
