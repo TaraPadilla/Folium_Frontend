@@ -18,7 +18,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import AppLayout from "./components/Layout/AppLayout";
 import Dashboard from "./components/Dashboard/Dashboard";
 import { useAuth } from "@/contexts/AuthContext";
-
+  
 // Create QueryClient outside of component to avoid recreating on every render
   const queryClient = new QueryClient();
   const RequireAuth = () => {
@@ -43,6 +43,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const LazyCotizacionPdfView = React.lazy(() => import('./components/Pdf/CotizacionPdfView'));
 const EditarContrato = React.lazy(() => import('./components/Contratos/EditarContrato'));
+const ProgramacionVisitas = React.lazy(() => import('./components/Visitas/ProgramacionVisitas'));
 
   const App = () => {
     // Protección simple: reemplazar por contexto de autenticación en el futuro
@@ -62,6 +63,11 @@ const EditarContrato = React.lazy(() => import('./components/Contratos/EditarCon
                     <Route path="clientes" element={<GestionClientes />} />
                     <Route path="cotizaciones" element={<CotizacionesList />} />
                     <Route path="contratos" element={<ContratosList />} />
+                    <Route path="programacion" element={
+                      <React.Suspense fallback={<div>Cargando Programación...</div>}>
+                        <ProgramacionVisitas />
+                      </React.Suspense>
+                    } />
                     <Route path="contratos/editar/:contratoId" element={<React.Suspense fallback={<div>Cargando Edición...</div>}><EditarContrato /></React.Suspense>} />
                     <Route path="cotizaciones/nueva" element={<CrearCotizacion />} />
                     <Route path="contratos/nuevo/:cotizacionId" element={<React.Suspense fallback={<div>Cargando Contrato...</div>}><GenerarContrato /></React.Suspense>} />
