@@ -54,7 +54,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
           children: [
             { id: 'programacion', label: 'Agendamientos', icon: Calendar },
             { id: 'hoja-ruta', label: 'Mi Hoja de Ruta', icon: MapPin },
-            { id: 'visitas-hoy', label: 'Visitas de Hoy', icon: Clock },
           ]
         }
       ];
@@ -80,7 +79,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
     if (usuario?.rol === 'encargado') {
       return [
         { id: 'hoja-ruta', label: 'Mi Hoja de Ruta', icon: MapPin },
-        { id: 'visitas-hoy', label: 'Visitas de Hoy', icon: Clock },
       ];
     }
 

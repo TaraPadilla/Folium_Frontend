@@ -18,6 +18,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import AppLayout from "./components/Layout/AppLayout";
 import Dashboard from "./components/Dashboard/Dashboard";
 import { useAuth } from "@/contexts/AuthContext";
+import HojaRuta from "./components/HojaRuta/HojaRuta";
   
 // Create QueryClient outside of component to avoid recreating on every render
   const queryClient = new QueryClient();
@@ -66,6 +67,11 @@ const ProgramacionVisitas = React.lazy(() => import('./components/Visitas/Progra
                     <Route path="programacion" element={
                       <React.Suspense fallback={<div>Cargando Programación...</div>}>
                         <ProgramacionVisitas />
+                      </React.Suspense>
+                    } />
+                    <Route path="hoja-ruta" element={
+                      <React.Suspense fallback={<div>Cargando Hoja de Ruta...</div>}>
+                        <HojaRuta />
                       </React.Suspense>
                     } />
                     <Route path="contratos/editar/:contratoId" element={<React.Suspense fallback={<div>Cargando Edición...</div>}><EditarContrato /></React.Suspense>} />
