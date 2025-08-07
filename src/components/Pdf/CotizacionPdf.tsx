@@ -105,8 +105,8 @@ export const CotizacionPdf: React.FC<Props> = ({
         <View style={styles.fieldBlock}>
           <Text>Presupuesto Nº {id ?? ''}</Text>
           <Text>Fecha: {fecha_creacion ? new Date(fecha_creacion).toLocaleDateString() : new Date().toLocaleDateString()}</Text>
-          <Text>Cliente: {cliente.nombre}</Text>
-          <Text>Dirección: {cliente.direccion}</Text>
+          <Text>Cliente: {cliente?.nombre || '-'}</Text>
+          <Text>Dirección: {cliente?.direccion || '-'}</Text>
         </View>
 
         {/* Título */}
