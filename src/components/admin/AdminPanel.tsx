@@ -54,19 +54,19 @@ const AdminPanel: React.FC = () => {
         </div>
       </div>
 
-      <Tabs defaultValue="cities">
+      <Tabs defaultValue="planes">
         <TabsList className="flex flex-wrap gap-2 mb-6">
-          <TabsTrigger value="cities">Ciudades</TabsTrigger>
           <TabsTrigger value="planes">Tipo de Servicio</TabsTrigger>
+          <TabsTrigger value="tareas">Tarea</TabsTrigger>
           <TabsTrigger value="equipos">Equipos</TabsTrigger>
-          <TabsTrigger value="tareas">Tareas</TabsTrigger>
+          <TabsTrigger value="cities">Ciudades</TabsTrigger>
         </TabsList>
 
         <div className="mt-6">
-          <TabsContent value="cities"><CityTab /></TabsContent>
           <TabsContent value="planes"><PlanesTab /></TabsContent>
-          <TabsContent value="equipos"><EquipoTab /></TabsContent>
           <TabsContent value="tareas"><TareaTab /></TabsContent>
+          <TabsContent value="equipos"><EquipoTab /></TabsContent>
+          <TabsContent value="cities"><CityTab /></TabsContent>
         </div>
       </Tabs> 
     </div>
