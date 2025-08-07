@@ -8,6 +8,8 @@ import VisitaService from '@/services/api/VisitaService';
 
 
 const ContratosList: React.FC = () => {
+  const [sortBy, setSortBy] = useState<string>('id');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const navigate = useNavigate();
   const [contratos, setContratos] = useState<Contrato[]>([]);
   const [clientes, setClientes] = useState<Record<number, Client>>({});
@@ -57,7 +59,7 @@ const ContratosList: React.FC = () => {
   const estados = Array.from(new Set(contratos.map(c => c.estado).filter(Boolean)));
 
   // Filtrado en memoria
-  const contratosFiltrados = contratos.filter(contrato => {
+  let contratosFiltrados = contratos.filter(contrato => {
     const clienteNombre = clientes[contrato.cliente_id]?.nombre?.toLowerCase() || '';
     const cotizacionNombre = cotizaciones[contrato.cotizacion_id]?.nombre?.toLowerCase() || '';
     const equipoNombre = equipos[contrato.equipo_id]?.nombre?.toLowerCase() || '';
@@ -73,6 +75,33 @@ const ContratosList: React.FC = () => {
     );
   });
 
+  // Ordenar contratos
+  contratosFiltrados = [...contratosFiltrados].sort((a, b) => {
+    let aValue: any = a[sortBy as keyof typeof a];
+    let bValue: any = b[sortBy as keyof typeof b];
+    if (sortBy === 'cliente') {
+      aValue = clientes[a.cliente_id]?.nombre || '';
+      bValue = clientes[b.cliente_id]?.nombre || '';
+    }
+    if (sortBy === 'equipo') {
+      aValue = equipos[a.equipo_id]?.nombre || '';
+      bValue = equipos[b.equipo_id]?.nombre || '';
+    }
+    if (sortBy === 'cotizacion') {
+      aValue = cotizaciones[a.cotizacion_id]?.nombre || '';
+      bValue = cotizaciones[b.cotizacion_id]?.nombre || '';
+    }
+    if (typeof aValue === 'string' && typeof bValue === 'string') {
+      if (sortDirection === 'asc') return aValue.localeCompare(bValue);
+      else return bValue.localeCompare(aValue);
+    }
+    if (typeof aValue === 'number' && typeof bValue === 'number') {
+      if (sortDirection === 'asc') return aValue - bValue;
+      else return bValue - aValue;
+    }
+    return 0;
+  });
+
   return (
     <div className="bg-white p-6 rounded shadow mt-4">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 gap-2">
@@ -84,7 +113,7 @@ const ContratosList: React.FC = () => {
           <input
             type="text"
             className="border rounded px-2 py-1 text-sm"
-            placeholder="Buscar por cliente, cotización o ID..."
+            placeholder="Buscar por cliente, presupuesto o ID..."
             value={search}
             onChange={e => setSearch(e.target.value)}
             style={{ minWidth: 180 }}
@@ -118,15 +147,42 @@ const ContratosList: React.FC = () => {
       <table className="min-w-full table-auto border">
         <thead>
           <tr className="bg-green-50">
-            <th className="px-2 py-1 border w-12">ID</th>
-            <th className="px-2 py-1 border min-w-[120px]">Cliente</th>
-            <th className="px-2 py-1 border min-w-[100px]">Equipo</th>
-            <th className="px-2 py-1 border min-w-[100px]">Cotización</th>
-            <th className="px-2 py-1 border w-24">Inicio</th>
-            <th className="px-2 py-1 border w-24">Fin</th>
-            <th className="px-2 py-1 border w-20">Frecuencia</th>
-            <th className="px-2 py-1 border w-20">Día</th>
-            <th className="px-2 py-1 border w-20">Estado</th>
+            <th className="px-2 py-1 border w-12 cursor-pointer select-none" onClick={() => {
+              if (sortBy === 'id') setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+              setSortBy('id');
+            }}>ID {sortBy === 'id' && (sortDirection === 'asc' ? '▲' : '▼')}</th>
+            <th className="px-2 py-1 border min-w-[120px] cursor-pointer select-none" onClick={() => {
+              if (sortBy === 'cliente') setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+              setSortBy('cliente');
+            }}>Cliente {sortBy === 'cliente' && (sortDirection === 'asc' ? '▲' : '▼')}</th>
+            <th className="px-2 py-1 border min-w-[100px] cursor-pointer select-none" onClick={() => {
+              if (sortBy === 'equipo') setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+              setSortBy('equipo');
+            }}>Equipo {sortBy === 'equipo' && (sortDirection === 'asc' ? '▲' : '▼')}</th>
+            <th className="px-2 py-1 border min-w-[100px] cursor-pointer select-none" onClick={() => {
+              if (sortBy === 'cotizacion') setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+              setSortBy('cotizacion');
+            }}>Presupuesto {sortBy === 'cotizacion' && (sortDirection === 'asc' ? '▲' : '▼')}</th>
+            <th className="px-2 py-1 border w-24 cursor-pointer select-none" onClick={() => {
+              if (sortBy === 'fecha_inicio') setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+              setSortBy('fecha_inicio');
+            }}>Inicio {sortBy === 'fecha_inicio' && (sortDirection === 'asc' ? '▲' : '▼')}</th>
+            <th className="px-2 py-1 border w-24 cursor-pointer select-none" onClick={() => {
+              if (sortBy === 'fecha_fin') setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+              setSortBy('fecha_fin');
+            }}>Fin {sortBy === 'fecha_fin' && (sortDirection === 'asc' ? '▲' : '▼')}</th>
+            <th className="px-2 py-1 border w-20 cursor-pointer select-none" onClick={() => {
+              if (sortBy === 'frecuencia') setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+              setSortBy('frecuencia');
+            }}>Frecuencia {sortBy === 'frecuencia' && (sortDirection === 'asc' ? '▲' : '▼')}</th>
+            <th className="px-2 py-1 border w-20 cursor-pointer select-none" onClick={() => {
+              if (sortBy === 'dia_visita') setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+              setSortBy('dia_visita');
+            }}>Día {sortBy === 'dia_visita' && (sortDirection === 'asc' ? '▲' : '▼')}</th>
+            <th className="px-2 py-1 border w-20 cursor-pointer select-none" onClick={() => {
+              if (sortBy === 'estado') setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+              setSortBy('estado');
+            }}>Estado {sortBy === 'estado' && (sortDirection === 'asc' ? '▲' : '▼')}</th>
             <th className="px-2 py-1 border min-w-[170px]">Acciones</th>
           </tr>
         </thead>

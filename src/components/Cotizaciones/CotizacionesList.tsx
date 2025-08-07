@@ -108,15 +108,15 @@ const CotizacionRow: React.FC<CotizacionRowProps> = ({ cotizacion }) => {
             title="Eliminar"
             onClick={async () => {
               if (cotizacion.estado === 'aceptada') {
-                alert('Debe eliminar primero el contrato asociado antes de eliminar esta cotización.');
+                alert('Debe eliminar primero el contrato asociado antes de eliminar este presupuesto.');
                 return;
               }
-              if (window.confirm('¿Seguro que desea eliminar esta cotización?')) {
+              if (window.confirm('¿Seguro que desea eliminar este presupuesto?')) {
                 try {
                   await cotizacionService.remove(cotizacion.id);
                   window.location.reload(); // O idealmente, refrescar el listado desde el padre
                 } catch {
-                  alert('No se pudo eliminar la cotización.');
+                  alert('No se pudo eliminar el presupuesto.');
                 }
               }
             }}
@@ -130,7 +130,7 @@ const CotizacionRow: React.FC<CotizacionRowProps> = ({ cotizacion }) => {
             className="bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded shadow text-xs disabled:opacity-50"
             onClick={() => navigate(`/contratos/nuevo/${cotizacion.id}`)}
             disabled={!!cotizacion.contrato_id}
-            title={cotizacion.contrato_id ? "Ya existe un contrato para esta cotización" : ""}
+            title={cotizacion.contrato_id ? "Ya existe un contrato para este presupuesto" : ""}
           >
             Generar Contrato
           </button>

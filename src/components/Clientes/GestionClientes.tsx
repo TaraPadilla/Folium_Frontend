@@ -14,6 +14,14 @@ import { ClientService, Client } from '@/services/api/ClientService';
 import { CityService, City } from '@/services/api/CityService';
 
 const GestionClientes = () => {
+  // Ordenamiento
+  const [sortBy, setSortBy] = useState<string>('nombre');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
+  const handleSort = (col: string) => {
+    if (sortBy === col) setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    setSortBy(col);
+  }
   const clientService = new ClientService();
   const cityService = new CityService();
   const [clientes, setClientes] = useState<Client[]>([]);
@@ -131,13 +139,30 @@ const GestionClientes = () => {
     setIsDialogOpen(true);
   };
 
-  const clientesFiltrados = clientes.filter(cliente => {
+  let clientesFiltrados = clientes
+    .filter(cliente => {
     const coincideTexto = cliente.nombre.toLowerCase().includes(searchText.toLowerCase()) ||
                          cliente.correo_contacto.toLowerCase().includes(searchText.toLowerCase());
     const coincideGrupo = filtroGrupo === 'todos' || cliente.estado === filtroGrupo;
     
     return coincideTexto && coincideGrupo;
+  })
+  .sort((a, b) => {
+    if (sortBy === 'nombre') return a.nombre.localeCompare(b.nombre);
+    if (sortBy === 'direccion') return a.direccion.localeCompare(b.direccion);
+    if (sortBy === 'ciudad') return String(ciudades.find(c => c.id === a.ciudad_id)?.ciudad || a.ciudad_id).localeCompare(String(ciudades.find(c => c.id === b.ciudad_id)?.ciudad || b.ciudad_id));
+    if (sortBy === 'estado') return a.estado.localeCompare(b.estado);
+    if (sortBy === 'nombre_contacto') return (a.nombre_contacto || '').localeCompare(b.nombre_contacto || '');
+    if (sortBy === 'celular_contacto') return (a.celular_contacto || '').localeCompare(b.celular_contacto || '');
+    if (sortBy === 'correo_contacto') return (a.correo_contacto || '').localeCompare(b.correo_contacto || '');
+    if (sortBy === 'fecha_alta') return (a.fecha_alta || '').localeCompare(b.fecha_alta || '');
+    if (sortBy === 'fecha_aceptacion') return (a.fecha_aceptacion || '').localeCompare(b.fecha_aceptacion || '');
+    if (sortBy === 'link_ubicacion') return (a.link_ubicacion || '').localeCompare(b.link_ubicacion || '');
+    if (sortBy === 'observaciones') return (a.observaciones || '').localeCompare(b.observaciones || '');
+    return 0;
   });
+
+  if (sortDirection === 'desc') clientesFiltrados = clientesFiltrados.reverse();
 
   const getGrupoColor = (grupo: string) => {
     switch (grupo) {
@@ -419,17 +444,17 @@ const GestionClientes = () => {
           <table className="min-w-full border text-sm">
             <thead>
               <tr className="bg-green-100">
-                <th className="px-3 py-2 border">Nombre</th>
-                <th className="px-3 py-2 border">Dirección</th>
-                <th className="px-3 py-2 border">Ciudad</th>
-                <th className="px-3 py-2 border">Estado</th>
-                <th className="px-3 py-2 border">Contacto</th>
-                <th className="px-3 py-2 border">Celular</th>
-                <th className="px-3 py-2 border">Correo</th>
-                <th className="px-3 py-2 border">Fecha alta</th>
-                <th className="px-3 py-2 border">Fecha aceptación</th>
-                <th className="px-3 py-2 border">Ubicación</th>
-                <th className="px-3 py-2 border">Observaciones</th>
+                <th className="px-3 py-2 border cursor-pointer select-none" onClick={() => handleSort('nombre')}>Nombre {sortBy === 'nombre' && (sortDirection === 'asc' ? '▲' : '▼')}</th>
+                <th className="px-3 py-2 border cursor-pointer select-none" onClick={() => handleSort('direccion')}>Dirección {sortBy === 'direccion' && (sortDirection === 'asc' ? '▲' : '▼')}</th>
+                <th className="px-3 py-2 border cursor-pointer select-none" onClick={() => handleSort('ciudad')}>Ciudad {sortBy === 'ciudad' && (sortDirection === 'asc' ? '▲' : '▼')}</th>
+                <th className="px-3 py-2 border cursor-pointer select-none" onClick={() => handleSort('estado')}>Estado {sortBy === 'estado' && (sortDirection === 'asc' ? '▲' : '▼')}</th>
+                <th className="px-3 py-2 border cursor-pointer select-none" onClick={() => handleSort('nombre_contacto')}>Contacto {sortBy === 'nombre_contacto' && (sortDirection === 'asc' ? '▲' : '▼')}</th>
+                <th className="px-3 py-2 border cursor-pointer select-none" onClick={() => handleSort('celular_contacto')}>Celular {sortBy === 'celular_contacto' && (sortDirection === 'asc' ? '▲' : '▼')}</th>
+                <th className="px-3 py-2 border cursor-pointer select-none" onClick={() => handleSort('correo_contacto')}>Correo {sortBy === 'correo_contacto' && (sortDirection === 'asc' ? '▲' : '▼')}</th>
+                <th className="px-3 py-2 border cursor-pointer select-none" onClick={() => handleSort('fecha_alta')}>Fecha alta {sortBy === 'fecha_alta' && (sortDirection === 'asc' ? '▲' : '▼')}</th>
+                <th className="px-3 py-2 border cursor-pointer select-none" onClick={() => handleSort('fecha_aceptacion')}>Fecha aceptación {sortBy === 'fecha_aceptacion' && (sortDirection === 'asc' ? '▲' : '▼')}</th>
+                <th className="px-3 py-2 border cursor-pointer select-none" onClick={() => handleSort('link_ubicacion')}>Ubicación {sortBy === 'link_ubicacion' && (sortDirection === 'asc' ? '▲' : '▼')}</th>
+                <th className="px-3 py-2 border cursor-pointer select-none" onClick={() => handleSort('observaciones')}>Observaciones {sortBy === 'observaciones' && (sortDirection === 'asc' ? '▲' : '▼')}</th>
                 <th className="px-3 py-2 border">Acciones</th>
               </tr>
             </thead>
