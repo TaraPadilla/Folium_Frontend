@@ -49,7 +49,7 @@ const GestionClientes = () => {
   }, []);
 
   const [searchText, setSearchText] = useState('');
-  const [filtroGrupo, setFiltroGrupo] = useState('todos');
+  
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [clienteEditando, setClienteEditando] = useState<Client | null>(null);
   const [modoVista, setModoVista] = useState<'cards' | 'tabla'>('cards');
@@ -143,7 +143,7 @@ const GestionClientes = () => {
     .filter(cliente => {
     const coincideTexto = cliente.nombre.toLowerCase().includes(searchText.toLowerCase()) ||
                          cliente.correo_contacto.toLowerCase().includes(searchText.toLowerCase());
-    const coincideGrupo = filtroGrupo === 'todos' || cliente.estado === filtroGrupo;
+    const coincideGrupo = true;
     
     return coincideTexto && coincideGrupo;
   })
@@ -328,21 +328,6 @@ const GestionClientes = () => {
                 />
               </div>
             </div>
-            
-            <div className="w-40">
-              <Label htmlFor="filtro-grupo">Filtrar por grupo</Label>
-              <Select value={filtroGrupo} onValueChange={setFiltroGrupo}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  <SelectItem value="todos">Todos</SelectItem>
-                  <SelectItem value="A">Grupo A</SelectItem>
-                  <SelectItem value="B">Grupo B</SelectItem>
-                  <SelectItem value="C">Grupo C</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
           </div>
         </CardContent>
       </Card>
@@ -524,8 +509,8 @@ const GestionClientes = () => {
               No se encontraron clientes
             </h3>
             <p className="text-gray-600">
-              {searchText || filtroGrupo !== 'todos' 
-                ? 'Intenta ajustar los filtros de búsqueda' 
+              {searchText
+                ? 'Intenta ajustar los filtros de búsqueda'
                 : 'Comienza agregando tu primer cliente'}
             </p>
           </CardContent>

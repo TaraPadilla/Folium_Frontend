@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { Cotizacion, CotizacionService } from '@/services/api/CotizacionService';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import CotizacionPdf from '../Pdf/CotizacionPdf';
@@ -98,42 +99,45 @@ const CotizacionRow: React.FC<CotizacionRowProps> = ({ cotizacion }) => {
         <td className="px-4 py-2 border">{cotizacion.fecha_envio}</td>
         <td className="px-4 py-2 border">{cotizacion.contrato_id || '-'}</td>
         <td className="px-4 py-2 border flex gap-1">
-          <button
-            className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-1 px-2 rounded text-xs"
-            title="Editar"
-            onClick={() => navigate(`/cotizaciones/${cotizacion.id}/editar`)}
-          >Editar</button>
-          <button
-            className="bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-2 rounded text-xs"
-            title="Eliminar"
-            onClick={async () => {
-              if (cotizacion.estado === 'aceptada') {
-                alert('Debe eliminar primero el contrato asociado antes de eliminar este presupuesto.');
-                return;
-              }
-              if (window.confirm('¿Seguro que desea eliminar este presupuesto?')) {
-                try {
-                  await cotizacionService.remove(cotizacion.id);
-                  window.location.reload(); // O idealmente, refrescar el listado desde el padre
-                } catch {
-                  alert('No se pudo eliminar el presupuesto.');
-                }
+          <ConfirmDialog
+            trigger={<button className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-1 px-2 rounded text-xs" title="Editar">Editar</button>}
+            title="¿Editar presupuesto?"
+            description="¿Seguro que deseas editar este presupuesto?"
+            confirmText="Editar"
+            onConfirm={() => navigate(`/cotizaciones/${cotizacion.id}/editar`)}
+          />
+          <ConfirmDialog
+            trigger={<button className="bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-2 rounded text-xs" title="Eliminar">Eliminar</button>}
+            title="¿Eliminar presupuesto?"
+            description={cotizacion.estado === 'aceptada' ? 'Debe eliminar primero el contrato asociado antes de eliminar este presupuesto.' : 'Esta acción eliminará el presupuesto de forma permanente.'}
+            confirmText="Eliminar"
+            onConfirm={async () => {
+              if (cotizacion.estado === 'aceptada') return;
+              try {
+                await cotizacionService.remove(cotizacion.id);
+                window.location.reload();
+              } catch {
+                // Aquí puedes mostrar un toast o mensaje de error si lo deseas
               }
             }}
-          >Eliminar</button>
+            cancelText={cotizacion.estado === 'aceptada' ? 'Aceptar' : 'Cancelar'}
+            onlyAccept={cotizacion.estado === 'aceptada'}
+            disabled={false}
+          />
           <button
             className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-2 rounded text-xs"
             onClick={() => navigate(`/cotizaciones/${cotizacion.id}/pdf`)}
             title="Ver PDF"
           >PDF</button>
-          <button
-            className="bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded shadow text-xs disabled:opacity-50"
-            onClick={() => navigate(`/contratos/nuevo/${cotizacion.id}`)}
+          <ConfirmDialog
+            trigger={<button className="bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded shadow text-xs disabled:opacity-50" disabled={!!cotizacion.contrato_id} title={cotizacion.contrato_id ? "Ya existe un contrato para este presupuesto" : ""}>Generar Contrato</button>}
+            title="¿Generar contrato?"
+            description={cotizacion.contrato_id ? "Ya existe un contrato para este presupuesto." : "¿Deseas generar un contrato a partir de este presupuesto?"}
+            confirmText="Generar"
+            onConfirm={() => navigate(`/contratos/nuevo/${cotizacion.id}`)}
+            cancelText="Cancelar"
             disabled={!!cotizacion.contrato_id}
-            title={cotizacion.contrato_id ? "Ya existe un contrato para este presupuesto" : ""}
-          >
-            Generar Contrato
-          </button>
+          />
           <button
             className="bg-gray-500 hover:bg-gray-700 text-white font-semibold py-1 px-2 rounded text-xs flex items-center gap-1"
             onClick={handlePreview}
