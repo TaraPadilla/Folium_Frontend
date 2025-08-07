@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { useNavigate } from 'react-router-dom';
 import { Contrato, ContratoService } from '@/services/api/ContratoService';
 import { CotizacionService } from '@/services/api/CotizacionService';
@@ -150,7 +151,7 @@ const ContratosList: React.FC = () => {
             <th className="px-2 py-1 border w-12 cursor-pointer select-none" onClick={() => {
               if (sortBy === 'id') setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
               setSortBy('id');
-            }}>ID {sortBy === 'id' && (sortDirection === 'asc' ? '▲' : '▼')}</th>
+            }}>Nro {sortBy === 'id' && (sortDirection === 'asc' ? '▲' : '▼')}</th>
             <th className="px-2 py-1 border min-w-[120px] cursor-pointer select-none" onClick={() => {
               if (sortBy === 'cliente') setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
               setSortBy('cliente');
@@ -203,16 +204,19 @@ const ContratosList: React.FC = () => {
                 <td className="px-4 py-2 border text-center">{contrato.estado}</td>
                 <td className="px-2 py-1 border text-center min-w-[170px]">
                   <div className="flex flex-row gap-1 justify-center items-center flex-wrap">
-                    <button
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs"
-                      onClick={() => navigate(`/contratos/editar/${contrato.id}`)}
-                    >
-                      Editar
-                    </button>
-                    <button
-                      className="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs"
-                      disabled={!!agendando[contrato.id]}
-                      onClick={async () => {
+                    <ConfirmDialog
+                      trigger={<button className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs">Editar</button>}
+                      title="¿Editar contrato?"
+                      description="¿Seguro que deseas editar este contrato?"
+                      confirmText="Editar"
+                      onConfirm={() => navigate(`/contratos/editar/${contrato.id}`)}
+                    />
+                    <ConfirmDialog
+                      trigger={<button className="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs" disabled={!!agendando[contrato.id]}>{agendando[contrato.id] ? 'Agendando...' : 'Agendar visitas'}</button>}
+                      title="¿Agendar visitas?"
+                      description="Vas a ejecutar todo el agendamiento relacionado a este contrato. Esta acción reemplazará los agendamientos previos y sus modificaciones."
+                      confirmText="Agendar"
+                      onConfirm={async () => {
                         setAgendando(a => ({...a, [contrato.id]: true}));
                         setMsgAgendamiento(m => ({...m, [contrato.id]: ''}));
                         try {
@@ -226,14 +230,13 @@ const ContratosList: React.FC = () => {
                           setAgendando(a => ({...a, [contrato.id]: false}));
                         }
                       }}
-                    >
-                      {agendando[contrato.id] ? 'Agendando...' : 'Agendar visitas'}
-                    </button>
-                    <button
-                      className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs"
-                      disabled={!!eliminando[contrato.id]}
-                      onClick={async () => {
-                        if (!window.confirm('¿Seguro que deseas eliminar este contrato?')) return;
+                    />
+                    <ConfirmDialog
+                      trigger={<button className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs" disabled={!!eliminando[contrato.id]}>{eliminando[contrato.id] ? 'Eliminando...' : 'Eliminar'}</button>}
+                      title="¿Eliminar contrato?"
+                      description="¿Seguro que deseas eliminar este contrato?"
+                      confirmText="Eliminar"
+                      onConfirm={async () => {
                         setEliminando(e => ({...e, [contrato.id]: true}));
                         setMsgEliminar(m => ({...m, [contrato.id]: ''}));
                         try {
@@ -246,9 +249,7 @@ const ContratosList: React.FC = () => {
                           setEliminando(e => ({...e, [contrato.id]: false}));
                         }
                       }}
-                    >
-                      {eliminando[contrato.id] ? 'Eliminando...' : 'Eliminar'}
-                    </button>
+                    />
                   </div>
                   {msgAgendamiento[contrato.id] && (
                     <div className={`text-xs mt-1 ${msgAgendamiento[contrato.id].startsWith('✔') ? 'text-green-700' : 'text-red-600'}`}>{msgAgendamiento[contrato.id]}</div>
