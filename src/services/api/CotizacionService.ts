@@ -11,9 +11,9 @@ export interface CotizacionCliente {
   correo_contacto?: string;
   fecha_alta?: string;
   fecha_aceptacion?: string | null;
-  created_at?: string;
-  updated_at?: string;
-  deleted_at?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: string | null;
   link_ubicacion?: string;
   observaciones?: string;
 }
