@@ -134,19 +134,30 @@ const ProgramacionVisitas = () => {
                   <TableCell>
                     <div className="flex space-x-2">
                       {visita.estado === 'programada' && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            const nuevaFecha = prompt('Nueva fecha (YYYY-MM-DD):');
-                            if (nuevaFecha) {
-                              reagendarVisita(visita.id, nuevaFecha);
-                            }
-                          }}
-                        >
-                          <RotateCcw className="h-4 w-4 mr-1" />
-                          Reagendar
-                        </Button>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button variant="outline" size="sm">
+                              <RotateCcw className="h-4 w-4 mr-1" />
+                              Reagendar
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={parseFechaLocal(visita.fechaProgramada)}
+                              onSelect={(date) => {
+                                if (date) {
+                                  const yyyy = date.getFullYear();
+                                  const mm = String(date.getMonth() + 1).padStart(2, '0');
+                                  const dd = String(date.getDate()).padStart(2, '0');
+                                  const nuevaFecha = `${yyyy}-${mm}-${dd}`;
+                                  reagendarVisita(visita.id, nuevaFecha);
+                                }
+                              }}
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
                       )}
                       {visita.fechaEjecucion && (
                         <div className="text-xs text-green-600">

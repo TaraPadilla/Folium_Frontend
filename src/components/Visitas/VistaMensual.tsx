@@ -201,18 +201,9 @@ const VistaMensual: React.FC<VistaMensualProps> = ({
                       onDragStart={(e) => handleDragStart(e, visita.id)}
                       onClick={() => handleCardClick(visita)}
                     >
-                      <div className="font-medium truncate mb-1">
-                        {visita.clienteNombre}
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-gray-600 truncate text-xs flex-1 mr-1">
-                          {visita.equipoNombre}
-                        </span>
-                        {getEstadoBadge(visita.estado)}
-                      </div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        {visita.tareasProgramadas.length} tareas
-                      </div>
+                      <div className="font-medium truncate">
+  {visita.clienteNombre}
+</div>
                     </div>
                   ))}
                 </div>
