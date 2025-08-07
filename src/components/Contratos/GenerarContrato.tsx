@@ -49,6 +49,7 @@ const GenerarContrato: React.FC = () => {
         estado: 'activo',
         frecuencia,
         dia_visita: diaVisita,
+        planes_seleccionados: [] // requerido por el tipo Contrato
       };
       await negocioService.guardarContratoConPlanesYtareas(
         contrato,
