@@ -141,10 +141,7 @@ const VistaDiaria: React.FC<VistaDiariaProps> = ({
                                 <MapPin className="h-4 w-4 mr-2" />
                                 {visita.direccion || cliente?.direccion || 'Dirección no disponible'}
                               </div>
-                              <div className="flex items-center">
-                                <Clock className="h-4 w-4 mr-2" />
-                                {format(new Date(visita.fechaProgramada), 'HH:mm')} hrs
-                              </div>
+                              
                             </div>
 
                             <div className="mt-3">

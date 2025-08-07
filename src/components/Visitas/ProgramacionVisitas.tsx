@@ -68,6 +68,11 @@ const ProgramacionVisitas = () => {
     fetchVisitas();
   }, [fechaSeleccionada.getFullYear(), fechaSeleccionada.getMonth()]); // Refetch cuando cambie el mes
   // Vista semanal
+// Utilidad para parsear fechas locales en formato YYYY-MM-DD
+function parseFechaLocal(fecha: string) {
+  const [year, month, day] = fecha.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
   const VistaSemanal = () => {
     const inicioSemana = startOfWeek(fechaSeleccionada, { weekStartsOn: 1 });
     const diasSemana = Array.from({ length: 7 }, (_, i) => addDays(inicioSemana, i));
@@ -117,7 +122,7 @@ const ProgramacionVisitas = () => {
                   <TableCell>
                     <div className="flex items-center">
                       <Clock className="h-4 w-4 mr-1 text-gray-500" />
-                      {format(new Date(visita.fechaProgramada), 'dd/MM/yyyy')}
+                      {format(parseFechaLocal(visita.fechaProgramada), 'dd/MM/yyyy')}
                     </div>
                   </TableCell>
                   <TableCell>{getEstadoBadge(visita.estado)}</TableCell>
