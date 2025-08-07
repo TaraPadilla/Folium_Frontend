@@ -106,7 +106,20 @@ const CotizacionRow: React.FC<CotizacionRowProps> = ({ cotizacion }) => {
           <button
             className="bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-2 rounded text-xs"
             title="Eliminar"
-            // onClick: funcionalidad futura
+            onClick={async () => {
+              if (cotizacion.estado === 'aceptada') {
+                alert('Debe eliminar primero el contrato asociado antes de eliminar esta cotización.');
+                return;
+              }
+              if (window.confirm('¿Seguro que desea eliminar esta cotización?')) {
+                try {
+                  await cotizacionService.remove(cotizacion.id);
+                  window.location.reload(); // O idealmente, refrescar el listado desde el padre
+                } catch {
+                  alert('No se pudo eliminar la cotización.');
+                }
+              }
+            }}
           >Eliminar</button>
           <button
             className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-2 rounded text-xs"
@@ -196,6 +209,10 @@ const CotizacionesList: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Estado para ordenamiento
+  const [sortBy, setSortBy] = useState<string>('id');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
   useEffect(() => {
     cotizacionService.getAll()
       .then(setCotizaciones)
@@ -214,10 +231,38 @@ const CotizacionesList: React.FC = () => {
   const estadosDisponibles = Array.from(new Set(cotizaciones.map(c => c.estado).filter(Boolean)));
 
   // Filtrar cotizaciones
-  const cotizacionesFiltradas = cotizaciones.filter(c => {
+  let cotizacionesFiltradas = cotizaciones.filter(c => {
     const matchEstado = !filtroEstado || c.estado === filtroEstado;
     const matchCliente = !filtroCliente || (c.cliente?.nombre || '').toLowerCase().includes(filtroCliente.toLowerCase());
     return matchEstado && matchCliente;
+  });
+
+  // Ordenar cotizaciones
+  cotizacionesFiltradas = [...cotizacionesFiltradas].sort((a, b) => {
+    let aValue: any = a[sortBy as keyof Cotizacion];
+    let bValue: any = b[sortBy as keyof Cotizacion];
+    // Soporte para campos anidados
+    if (sortBy === 'cliente') {
+      aValue = a.cliente?.nombre || '';
+      bValue = b.cliente?.nombre || '';
+    }
+    if (sortBy === 'contrato_id') {
+      aValue = a.contrato_id || 0;
+      bValue = b.contrato_id || 0;
+    }
+    if (sortBy === 'fecha_envio') {
+      aValue = a.fecha_envio || '';
+      bValue = b.fecha_envio || '';
+    }
+    if (typeof aValue === 'string' && typeof bValue === 'string') {
+      if (sortDirection === 'asc') return aValue.localeCompare(bValue);
+      else return bValue.localeCompare(aValue);
+    }
+    if (typeof aValue === 'number' && typeof bValue === 'number') {
+      if (sortDirection === 'asc') return aValue - bValue;
+      else return bValue - aValue;
+    }
+    return 0;
   });
 
   return (
@@ -254,11 +299,36 @@ const CotizacionesList: React.FC = () => {
         <table className="min-w-full table-auto border">
           <thead>
             <tr className="bg-green-100">
-              <th className="px-4 py-2 border">Nro</th>
-              <th className="px-4 py-2 border">Cliente</th>
-              <th className="px-4 py-2 border">Estado</th>
-              <th className="px-4 py-2 border">Fecha Envío</th>
-              <th className="px-4 py-2 border">Contrato ID</th>
+              <th className="px-4 py-2 border cursor-pointer select-none" onClick={() => {
+                if (sortBy === 'id') setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+                setSortBy('id');
+              }}>
+                Nro {sortBy === 'id' && (sortDirection === 'asc' ? '▲' : '▼')}
+              </th>
+              <th className="px-4 py-2 border cursor-pointer select-none" onClick={() => {
+                if (sortBy === 'cliente') setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+                setSortBy('cliente');
+              }}>
+                Cliente {sortBy === 'cliente' && (sortDirection === 'asc' ? '▲' : '▼')}
+              </th>
+              <th className="px-4 py-2 border cursor-pointer select-none" onClick={() => {
+                if (sortBy === 'estado') setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+                setSortBy('estado');
+              }}>
+                Estado {sortBy === 'estado' && (sortDirection === 'asc' ? '▲' : '▼')}
+              </th>
+              <th className="px-4 py-2 border cursor-pointer select-none" onClick={() => {
+                if (sortBy === 'fecha_envio') setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+                setSortBy('fecha_envio');
+              }}>
+                Fecha Envío {sortBy === 'fecha_envio' && (sortDirection === 'asc' ? '▲' : '▼')}
+              </th>
+              <th className="px-4 py-2 border cursor-pointer select-none" onClick={() => {
+                if (sortBy === 'contrato_id') setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+                setSortBy('contrato_id');
+              }}>
+                Contrato ID {sortBy === 'contrato_id' && (sortDirection === 'asc' ? '▲' : '▼')}
+              </th>
               <th className="px-4 py-2 border">Acciones</th>
             </tr>
           </thead>
@@ -280,7 +350,7 @@ const NuevaCotizacionButton: React.FC = () => {
       className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded shadow"
       onClick={() => navigate('/cotizaciones/nueva')}
     >
-      Nueva Presupuesto
+      Nuevo Presupuesto
     </button>
   );
 };
