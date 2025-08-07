@@ -49,7 +49,7 @@ const GestionClientes = () => {
   }, []);
 
   const [searchText, setSearchText] = useState('');
-  const [selectedCiudadId, setSelectedCiudadId] = useState<string>('');
+  const [selectedCiudadId, setSelectedCiudadId] = useState<string>('__all__');
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [clienteEditando, setClienteEditando] = useState<Client | null>(null);
@@ -144,7 +144,7 @@ const GestionClientes = () => {
     .filter(cliente => {
       const coincideTexto = (cliente.nombre || '').toLowerCase().includes(searchText.toLowerCase()) ||
                            (cliente.correo_contacto || '').toLowerCase().includes(searchText.toLowerCase());
-      const coincideCiudad = !selectedCiudadId || String(cliente.ciudad_id) === selectedCiudadId;
+      const coincideCiudad = selectedCiudadId === '__all__' || String(cliente.ciudad_id) === selectedCiudadId;
       return coincideTexto && coincideCiudad;
     })
   .sort((a, b) => {
@@ -329,7 +329,7 @@ const GestionClientes = () => {
                 <SelectValue placeholder="Filtrar por ciudad" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todas las ciudades</SelectItem>
+                <SelectItem value="__all__">Todas las ciudades</SelectItem>
                 {ciudades.map((c) => (
                   <SelectItem key={c.id} value={String(c.id)}>{c.ciudad}</SelectItem>
                 ))}
