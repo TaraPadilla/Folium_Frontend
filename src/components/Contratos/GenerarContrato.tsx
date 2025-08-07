@@ -63,6 +63,7 @@ const GenerarContrato: React.FC = () => {
         }))
       );
       setSuccessMsg('¡Contrato guardado exitosamente!');
+      setTimeout(() => navigate('/contratos'), 1200); // Redirige tras 1.2s
     } catch (e: any) {
       if (e && e.response && e.response.data && e.response.data.message) {
         setSuccessMsg('Error: ' + e.response.data.message);

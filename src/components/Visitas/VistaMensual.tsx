@@ -61,9 +61,20 @@ const VistaMensual: React.FC<VistaMensualProps> = ({
   };
 
   const handleCardClick = (visita: any) => {
-    setVisitaDetalle(visita);
-    setDialogOpen(true);
-  };
+  // Buscar datos completos de cliente y contrato si existen arrays
+  let cliente = visita.cliente;
+  let contrato = visita.contrato;
+  // Buscar cliente por ID si no está embebido
+  if (!cliente && visita.clienteId && Array.isArray(clientes)) {
+    cliente = clientes.find((c) => c.id === visita.clienteId);
+  }
+  // Buscar contrato por ID si no está embebido y si existe prop contrato_id
+  if (!contrato && visita.contrato_id && visita.contratos && Array.isArray(visita.contratos)) {
+    contrato = visita.contratos.find((c) => c.id === visita.contrato_id);
+  }
+  setVisitaDetalle({ ...visita, cliente, contrato });
+  setDialogOpen(true);
+};
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
