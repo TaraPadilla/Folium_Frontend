@@ -1,5 +1,6 @@
 
-import React from 'react';
+import React, { useState } from 'react';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -23,6 +24,21 @@ const VistaMensual: React.FC<VistaMensualProps> = ({
   clientes,
   onReagendarVisita 
 }) => {
+  const [pendingReagendar, setPendingReagendar] = useState<{
+    visitaId: string;
+    nuevaFecha: string;
+    fechaActual: string;
+  } | null>(null);
+
+  // --- Confirmación programática ---
+  React.useEffect(() => {
+    if (pendingReagendar) {
+      setTimeout(() => {
+        const btn = document.getElementById('trigger-confirm-reagendar-mensual');
+        if (btn) btn.click();
+      }, 0);
+    }
+  }, [pendingReagendar]);
   const inicioMes = startOfMonth(fechaSeleccionada);
   const finMes = endOfMonth(fechaSeleccionada);
   const diasMes = eachDayOfInterval({ start: inicioMes, end: finMes });
@@ -57,15 +73,17 @@ const VistaMensual: React.FC<VistaMensualProps> = ({
   const handleDrop = (e: React.DragEvent, nuevaFecha: Date) => {
     e.preventDefault();
     const visitaId = e.dataTransfer.getData('visitaId');
-    
     // Formatear la fecha correctamente (usar la fecha local sin conversión de zona horaria)
     const year = nuevaFecha.getFullYear();
     const month = String(nuevaFecha.getMonth() + 1).padStart(2, '0');
     const day = String(nuevaFecha.getDate()).padStart(2, '0');
     const nuevaFechaStr = `${year}-${month}-${day}`;
-    
-    console.log('Soltando visita:', visitaId, 'en fecha:', nuevaFechaStr);
-    onReagendarVisita(visitaId, nuevaFechaStr);
+    const visita = visitas.find(v => v.id === visitaId);
+    if (!visita) return;
+    // Solo pedir confirmación si la fecha realmente cambia
+    if (visita.fechaProgramada !== nuevaFechaStr) {
+      setPendingReagendar({ visitaId, nuevaFecha: nuevaFechaStr, fechaActual: visita.fechaProgramada });
+    }
   };
 
   const visitasPorDia = (dia: Date) => {
@@ -94,6 +112,27 @@ const VistaMensual: React.FC<VistaMensualProps> = ({
 
   return (
     <>
+      {/* Confirmación de reagendado drag & drop */}
+      {pendingReagendar && (
+        <ConfirmDialog
+          trigger={
+            <button
+              id="trigger-confirm-reagendar-mensual"
+              style={{ position: 'absolute', left: '-9999px', width: 1, height: 1 }}
+              autoFocus
+            >Abrir</button>
+          }
+          title="¿Seguro que deseas reagendar esta visita?"
+          description={`La visita se moverá del día ${pendingReagendar.fechaActual} al día ${pendingReagendar.nuevaFecha}.`}
+          confirmText="Reagendar"
+          cancelText="Cancelar"
+          onConfirm={() => {
+            onReagendarVisita(pendingReagendar.visitaId, pendingReagendar.nuevaFecha);
+            setPendingReagendar(null);
+          }}
+          loading={false}
+        />
+      )}
       <Card>
         <CardHeader>
         <CardTitle className="flex items-center justify-between">

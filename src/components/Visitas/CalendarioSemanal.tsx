@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -23,6 +24,21 @@ const CalendarioSemanal: React.FC<CalendarioSemanalProps> = ({
   equipos,
   onReagendarVisita
 }) => {
+  const [pendingReagendar, setPendingReagendar] = useState<{
+    visitaId: string;
+    nuevaFecha: string;
+    fechaActual: string;
+  } | null>(null);
+
+  // --- Confirmación programática ---
+  React.useEffect(() => {
+    if (pendingReagendar) {
+      setTimeout(() => {
+        const btn = document.getElementById('trigger-confirm-reagendar-calendario');
+        if (btn) btn.click();
+      }, 0);
+    }
+  }, [pendingReagendar]);
   const inicioSemana = startOfWeek(fechaSeleccionada, { weekStartsOn: 1 });
   const diasSemana = Array.from({ length: 7 }, (_, i) => addDays(inicioSemana, i));
 
@@ -40,15 +56,17 @@ const CalendarioSemanal: React.FC<CalendarioSemanalProps> = ({
   const handleDrop = (e: React.DragEvent, nuevaFecha: Date) => {
     e.preventDefault();
     const visitaId = e.dataTransfer.getData('visitaId');
-    
     // Formatear la fecha correctamente (usar la fecha local sin conversión de zona horaria)
     const year = nuevaFecha.getFullYear();
     const month = String(nuevaFecha.getMonth() + 1).padStart(2, '0');
     const day = String(nuevaFecha.getDate()).padStart(2, '0');
     const nuevaFechaStr = `${year}-${month}-${day}`;
-    
-    console.log('Soltando visita:', visitaId, 'en fecha:', nuevaFechaStr);
-    onReagendarVisita(visitaId, nuevaFechaStr);
+    const visita = visitas.find(v => v.id === visitaId);
+    if (!visita) return;
+    // Solo pedir confirmación si la fecha realmente cambia
+    if (visita.fechaProgramada !== nuevaFechaStr) {
+      setPendingReagendar({ visitaId, nuevaFecha: nuevaFechaStr, fechaActual: visita.fechaProgramada });
+    }
   };
 
   const getVisitasPorDia = (fecha: Date) => {
@@ -93,7 +111,29 @@ const CalendarioSemanal: React.FC<CalendarioSemanalProps> = ({
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
+    <>
+      {/* Confirmación de reagendado drag & drop */}
+      {pendingReagendar && (
+        <ConfirmDialog
+          trigger={
+            <button
+              id="trigger-confirm-reagendar-calendario"
+              style={{ position: 'absolute', left: '-9999px', width: 1, height: 1 }}
+              autoFocus
+            >Abrir</button>
+          }
+          title="¿Seguro que deseas reagendar esta visita?"
+          description={`La visita se moverá del día ${pendingReagendar.fechaActual} al día ${pendingReagendar.nuevaFecha}.`}
+          confirmText="Reagendar"
+          cancelText="Cancelar"
+          onConfirm={() => {
+            onReagendarVisita(pendingReagendar.visitaId, pendingReagendar.nuevaFecha);
+            setPendingReagendar(null);
+          }}
+          loading={false}
+        />
+      )}
+      <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
       {diasSemana.map((dia, index) => {
         const visitasDelDia = getVisitasPorDia(dia);
         const esHoy = isSameDay(dia, new Date());
@@ -206,6 +246,7 @@ const CalendarioSemanal: React.FC<CalendarioSemanalProps> = ({
         );
       })}
     </div>
+    </>
   );
 };
 
