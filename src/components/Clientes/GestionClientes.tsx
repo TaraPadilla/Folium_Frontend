@@ -49,7 +49,8 @@ const GestionClientes = () => {
   }, []);
 
   const [searchText, setSearchText] = useState('');
-  
+  const [selectedCiudadId, setSelectedCiudadId] = useState<string>('');
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [clienteEditando, setClienteEditando] = useState<Client | null>(null);
   const [modoVista, setModoVista] = useState<'cards' | 'tabla'>('cards');
@@ -141,12 +142,11 @@ const GestionClientes = () => {
 
   let clientesFiltrados = clientes
     .filter(cliente => {
-    const coincideTexto = cliente.nombre.toLowerCase().includes(searchText.toLowerCase()) ||
-                         cliente.correo_contacto.toLowerCase().includes(searchText.toLowerCase());
-    const coincideGrupo = true;
-    
-    return coincideTexto && coincideGrupo;
-  })
+      const coincideTexto = (cliente.nombre || '').toLowerCase().includes(searchText.toLowerCase()) ||
+                           (cliente.correo_contacto || '').toLowerCase().includes(searchText.toLowerCase());
+      const coincideCiudad = !selectedCiudadId || String(cliente.ciudad_id) === selectedCiudadId;
+      return coincideTexto && coincideCiudad;
+    })
   .sort((a, b) => {
     if (sortBy === 'nombre') return a.nombre.localeCompare(b.nombre);
     if (sortBy === 'direccion') return a.direccion.localeCompare(b.direccion);
@@ -314,20 +314,27 @@ const GestionClientes = () => {
       {/* Filtros */}
       <Card className="mb-6">
         <CardContent className="pt-6">
-          <div className="flex gap-4 items-end">
-            <div className="flex-1">
-              <Label htmlFor="search">Buscar cliente</Label>
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  id="search"
-                  placeholder="Buscar por nombre o email..."
-                  value={searchText}
-                  onChange={(e) => setSearchText(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
+          <div className="flex flex-col md:flex-row md:items-center md:space-x-4 mb-4">
+            <Input
+              placeholder="Buscar cliente o correo..."
+              value={searchText}
+              onChange={e => setSearchText(e.target.value)}
+              className="mb-2 md:mb-0"
+            />
+            <Select
+              value={selectedCiudadId}
+              onValueChange={setSelectedCiudadId}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filtrar por ciudad" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Todas las ciudades</SelectItem>
+                {ciudades.map((c) => (
+                  <SelectItem key={c.id} value={String(c.id)}>{c.ciudad}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
